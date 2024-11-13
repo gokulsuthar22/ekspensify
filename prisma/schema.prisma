@@ -1,0 +1,111 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model User {
+  id         String     @id @default(uuid())
+  name       String
+  email      String     @unique
+  role       Role       @default(USER)
+  status     UserStatus @default(ACTIVE)
+  isVerified Boolean?   @default(false) @map("is_verified")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+  category   Category[]
+  account    Account[]
+
+  @@map("users")
+}
+
+model Otp {
+  id         Int      @id @default(autoincrement())
+  code       Int
+  email      String   @unique
+  isVerified Boolean? @default(false) @map("is_verified")
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("otps")
+}
+
+enum MediaType {
+  IMAGE
+  PDF
+}
+
+model Media {
+  id        String    @id @default(uuid())
+  name      String
+  type      MediaType
+  path      String
+  large     String?
+  medium    String?
+  small     String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("media")
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  userId    String?   @map("user_id")
+  slug      String?
+  name      String
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  user      User?     @relation(fields: [userId], references: [id])
+
+  @@map("categories")
+}
+
+enum AccountCategory {
+  BANK
+  WALLET
+}
+
+model AccountType {
+  id        String          @id @default(uuid())
+  name      String
+  slug      String?         @unique
+  category  AccountCategory
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+  deletedAt DateTime?       @map("deleted_at")
+  account   Account[]
+
+  @@map("account_types")
+}
+
+model Account {
+  id            String      @id @default(uuid())
+  userId        String      @map("user_id")
+  accountTypeId String      @map("type_id")
+  balance       Decimal
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  deletedAt     DateTime?   @map("deleted_at")
+  user          User?       @relation(fields: [userId], references: [id])
+  accountType   AccountType @relation(fields: [accountTypeId], references: [id])
+
+  @@map("accounts")
+}
