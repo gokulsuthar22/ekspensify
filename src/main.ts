@@ -4,7 +4,7 @@ import * as compression from 'compression';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
-import { HttpExceptionFilter } from './common/exceptions/http.exception';
+import { HttpExceptionFilter } from './core/exceptions/http.exception';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);

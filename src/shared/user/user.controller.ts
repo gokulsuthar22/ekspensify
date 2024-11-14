@@ -10,11 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { RoleGuard } from 'src/common/guards/role.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { AuthGuard } from 'src/core/guards/auth.guard';
+import { RoleGuard } from 'src/core/guards/role.guard';
+import { Roles } from 'src/core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { Serialize } from 'src/common/interceptors/serialize.interceptor';
+import { Serialize } from 'src/core/interceptors/serialize.interceptor';
 import { UserPaginatedResponseDto } from './dtos/user-paginatated-response.dto';
 import { UserDto } from './dtos/user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';

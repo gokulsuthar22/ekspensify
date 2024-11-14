@@ -11,14 +11,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { RoleGuard } from 'src/common/guards/role.guard';
+import { AuthGuard } from 'src/core/guards/auth.guard';
+import { RoleGuard } from 'src/core/guards/role.guard';
 import { AccountService } from './account.service';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { Roles } from 'src/core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { Serialize } from 'src/common/interceptors/serialize.interceptor';
+import { Serialize } from 'src/core/interceptors/serialize.interceptor';
 import { AccountDto } from './dtos/account.dto';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { CurrentUser } from 'src/core/decorators/current-user.decorator';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 import { FilterAccountDto } from './dtos/filter-account.dto';

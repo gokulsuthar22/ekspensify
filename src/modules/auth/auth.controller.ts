@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { Serialize } from 'src/common/interceptors/serialize.interceptor';
+import { Serialize } from 'src/core/interceptors/serialize.interceptor';
 import { GoogleAuthService } from './services/google-auth.service';
 import { AuthService } from './auth.service';
 import { UserDto } from 'src/shared/user/dtos/user.dto';

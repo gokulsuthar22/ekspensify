@@ -2,12 +2,14 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { OtpRepository } from './otp.repository';
 import { utc } from 'moment';
 import { UserRepository } from '../user/user.repository';
+import { MailService } from 'src/helper/mail/mail.service';
 
 @Injectable()
 export class OtpService {
   constructor(
     private userRepo: UserRepository,
     private otpRepo: OtpRepository,
+    private mailService: MailService,
   ) {}
 
   async send(email: string) {
@@ -19,12 +21,13 @@ export class OtpService {
         HttpStatus.NOT_FOUND,
       );
     }
-    await this.otpRepo.create({ email });
+    await this.otpRepo.create({ email }); // Remove this and uncomment below code
+    // const otp = await this.otpRepo.create({ email });
+    // await this.mailService.sendOtpMail(email, {
+    //   code: otp.code,
+    //   username: user.name,
+    // });
   }
-  // async send(email: string, name: string) {
-  //   const otp = await this.otpRepo.create({ email });
-  //   // await this.emailService.send({ email, code: otp.code, name });
-  // }
 
   async verify(email: string, code: number) {
     if (code === 112233) return true;

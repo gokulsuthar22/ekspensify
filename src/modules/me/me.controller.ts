@@ -8,11 +8,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { RoleGuard } from 'src/common/guards/role.guard';
-import { Serialize } from 'src/common/interceptors/serialize.interceptor';
+import { CurrentUser } from 'src/core/decorators/current-user.decorator';
+import { Roles } from 'src/core/decorators/roles.decorator';
+import { AuthGuard } from 'src/core/guards/auth.guard';
+import { RoleGuard } from 'src/core/guards/role.guard';
+import { Serialize } from 'src/core/interceptors/serialize.interceptor';
 import { UpdateMeUserDto } from 'src/shared/user/dtos/update-me-user.dto';
 import { UserDto } from 'src/shared/user/dtos/user.dto';
 import { UserService } from 'src/shared/user/user.service';

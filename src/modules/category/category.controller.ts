@@ -13,13 +13,13 @@ import {
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CategoryDto } from './dtos/category.dto';
-import { Serialize } from 'src/common/interceptors/serialize.interceptor';
+import { Serialize } from 'src/core/interceptors/serialize.interceptor';
 import { CreateCategoryDto } from './dtos/create-category.dto';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { RoleGuard } from 'src/common/guards/role.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { AuthGuard } from 'src/core/guards/auth.guard';
+import { RoleGuard } from 'src/core/guards/role.guard';
+import { Roles } from 'src/core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { CurrentUser } from 'src/core/decorators/current-user.decorator';
 import { UpdateCategoryDto } from './dtos/update.dto';
 import { FilterCategoryDto } from './dtos/filter-category.dto';
 
