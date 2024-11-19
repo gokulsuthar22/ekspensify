@@ -1,8 +1,8 @@
-import { PrismaService } from '@app/infra/persistence/prisma/prisma.service';
+import { PrismaService } from 'infra/persistence/prisma/prisma.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
-import { PaginationService } from 'src/common/services/pagination.service';
-import { PaginationParams } from 'src/common/types/pagination.type';
+import { PaginationService } from 'common/services/pagination.service';
+import { PaginationParams } from 'common/types/pagination.type';
 
 @Injectable()
 export class UserRepository {
@@ -15,9 +15,9 @@ export class UserRepository {
     return this.prismaService.user;
   }
 
-  async create(data: Prisma.UserCreateInput) {
+  async create(data: Prisma.UserCreateInput, include?: Prisma.UserInclude) {
     try {
-      return await this.User.create({ data });
+      return await this.User.create({ data, include });
     } catch (error: any) {
       if (error.code === 'P2002') {
         throw new HttpException(
@@ -29,47 +29,55 @@ export class UserRepository {
     }
   }
 
-  async findById(id: string) {
-    return this.User.findUnique({ where: { id } });
+  async findById(id: number, include?: Prisma.UserInclude) {
+    return this.User.findUnique({ where: { id }, include });
   }
 
-  async findByIdAndUpdate(id: string, data: Prisma.UserUpdateInput) {
+  async findByIdAndUpdate(
+    id: number,
+    data: Prisma.UserUpdateInput,
+    include?: Prisma.UserInclude,
+  ) {
     try {
-      return await this.User.update({ where: { id }, data });
+      return await this.User.update({ where: { id }, data, include });
     } catch (error: any) {
       if (error.code === 'P2025') return null;
       throw error;
     }
   }
 
-  async findByIdAndDelete(id: string) {
+  async findByIdAndDelete(id: number, include?: Prisma.UserInclude) {
     try {
-      return await this.User.delete({ where: { id } });
+      return await this.User.delete({ where: { id }, include });
     } catch (error: any) {
       if (error.code === 'P2025') return null;
       throw error;
     }
   }
 
-  async findOne(where: Prisma.UserWhereInput) {
-    return this.User.findFirst({ where });
+  async findOne(where: Prisma.UserWhereInput, include?: Prisma.UserInclude) {
+    return this.User.findFirst({ where, include });
   }
 
   async findOneAndUpdate(
     where: Prisma.UserWhereUniqueInput,
     data: Prisma.UserUpdateInput,
+    include?: Prisma.UserInclude,
   ) {
     try {
-      return await this.User.update({ where, data });
+      return await this.User.update({ where, data, include });
     } catch (error: any) {
       if (error.code === 'P2025') return null;
       throw error;
     }
   }
 
-  async findOneAndDelete(where: Prisma.UserWhereUniqueInput) {
+  async findOneAndDelete(
+    where: Prisma.UserWhereUniqueInput,
+    include?: Prisma.UserInclude,
+  ) {
     try {
-      return await this.User.delete({ where });
+      return await this.User.delete({ where, include });
     } catch (error: any) {
       if (error.code === 'P2025') return null;
       throw error;

@@ -1,7 +1,7 @@
-import { PrismaService } from '@app/infra/persistence/prisma/prisma.service';
+import { PrismaService } from 'infra/persistence/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { UtilService } from 'src/common/services/util.service';
+import { UtilService } from 'common/services/util.service';
 
 @Injectable()
 export class OtpRepository {
@@ -32,12 +32,7 @@ export class OtpRepository {
     id: number,
     data: Pick<Prisma.OtpUpdateInput, 'isVerified' | 'expiresAt' | 'code'>,
   ) {
-    try {
-      return await this.Otp.update({ where: { id }, data });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
+    return this.Otp.update({ where: { id }, data });
   }
 
   async findByIdAndDelete(id: number) {
@@ -57,21 +52,11 @@ export class OtpRepository {
     where: Prisma.OtpWhereUniqueInput,
     data: Pick<Prisma.OtpUpdateInput, 'isVerified' | 'expiresAt' | 'code'>,
   ) {
-    try {
-      return await this.Otp.update({ where, data });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
+    return this.Otp.update({ where, data });
   }
 
   async findOneAndDelete(where: Prisma.OtpWhereUniqueInput) {
-    try {
-      return await this.Otp.delete({ where });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
+    return await this.Otp.delete({ where });
   }
 
   async findMany(where?: Prisma.OtpWhereInput) {

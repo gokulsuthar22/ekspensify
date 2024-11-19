@@ -2,7 +2,7 @@ import { Expose } from 'class-transformer';
 
 export class CategoryDto {
   @Expose()
-  id: string;
+  id: number;
 
   @Expose()
   name: string;
@@ -10,8 +10,14 @@ export class CategoryDto {
   @Expose()
   slug: string;
 
+  @Expose()
+  type: string;
+
+  @Expose()
+  icon: string;
+
   @Expose({ name: 'userId' })
-  user_id: string;
+  user_id: number;
 
   @Expose({ name: 'isActive' })
   is_active: boolean;

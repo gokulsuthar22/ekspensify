@@ -10,11 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { AuthGuard } from 'src/core/guards/auth.guard';
-import { RoleGuard } from 'src/core/guards/role.guard';
-import { Roles } from 'src/core/decorators/roles.decorator';
+import { AuthGuard } from 'core/guards/auth.guard';
+import { RoleGuard } from 'core/guards/role.guard';
+import { Roles } from 'core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { Serialize } from 'src/core/interceptors/serialize.interceptor';
+import { Serialize } from 'core/interceptors/serialize.interceptor';
 import { UserPaginatedResponseDto } from './dtos/user-paginatated-response.dto';
 import { UserDto } from './dtos/user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
@@ -37,7 +37,7 @@ export class UserController {
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Serialize(UserDto)
-  findById(@Param('id') id: string) {
+  findById(@Param('id') id: number) {
     return this.userService.findById(id);
   }
 
@@ -45,7 +45,7 @@ export class UserController {
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Serialize(UserDto)
-  updateById(@Param('id') id: string, @Body() data: UpdateUserDto) {
+  updateById(@Param('id') id: number, @Body() data: UpdateUserDto) {
     return this.userService.updateById(id, data);
   }
 }

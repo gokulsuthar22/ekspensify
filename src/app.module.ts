@@ -8,8 +8,10 @@ import { CommonModule } from './common/common.module';
 import { JwtModule } from '@nestjs/jwt';
 import { CategoryModule } from './modules/category/category.module';
 import { MeModule } from './modules/me/me.module';
-import { AccountTypeModule } from './modules/account-type/account-type.module';
 import { AccountModule } from './modules/account/account.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
+import { TransactionModule } from './modules/transaction/transaction.module';
 
 @Module({
   imports: [
@@ -33,12 +35,25 @@ import { AccountModule } from './modules/account/account.module';
       type: 'prisma',
       global: true,
     }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async () => {
+        return {
+          store: await redisStore({
+            socket: {
+              host: 'localhost',
+              port: 6379,
+            },
+          }),
+        };
+      },
+    }),
     MeModule,
     AuthModule,
     UserModule,
     CategoryModule,
-    AccountTypeModule,
     AccountModule,
+    TransactionModule,
   ],
 })
 export class AppModule {}

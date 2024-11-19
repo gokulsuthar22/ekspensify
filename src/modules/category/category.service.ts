@@ -12,7 +12,14 @@ export class CategoryService {
   constructor(private categoryRepo: CategoryRepository) {}
 
   async create(data: CreateCategoryData) {
-    return this.categoryRepo.create(data);
+    try {
+      const category = await this.categoryRepo.create(data);
+      return category;
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new HttpException('Category already exist', HttpStatus.CONFLICT);
+      }
+    }
   }
 
   async update(where: CategoryWhere, data: UpdateCategoryData) {
@@ -32,6 +39,7 @@ export class CategoryService {
   }
 
   async findMany(where?: FilterCategoryWhere) {
-    return this.categoryRepo.findMany(where);
+    const categories = await this.categoryRepo.findMany(where);
+    return categories;
   }
 }

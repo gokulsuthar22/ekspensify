@@ -1,78 +1,118 @@
-import { PrismaService } from '@app/infra/persistence/prisma/prisma.service';
+import { PrismaService } from 'infra/persistence/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { UtilService } from 'common/services/util.service';
+import {
+  CategoryWhere,
+  CreateCategoryData,
+  FilterCategoryWhere,
+  GenerateCategorySlug,
+  UpdateCategoryData,
+} from './category.interface';
+import { Repository } from 'common/types/repository.interface';
+import { Category } from '@prisma/client';
 
 @Injectable()
-export class CategoryRepository {
-  constructor(private prismaService: PrismaService) {}
+export class CategoryRepository
+  implements
+    Repository<Category, CreateCategoryData, UpdateCategoryData, CategoryWhere>
+{
+  constructor(
+    private prismaService: PrismaService,
+    private utilService: UtilService,
+  ) {}
 
   private get Category() {
     return this.prismaService.category;
   }
 
-  async create(data: Prisma.CategoryUncheckedCreateInput) {
-    return this.Category.create({ data });
+  private generateSlug(category: GenerateCategorySlug) {
+    return this.utilService.slugifyText(
+      category.name,
+      category?.type,
+      category?.userId?.toString(),
+    );
   }
 
-  async findById(id: string) {
-    return this.Category.findUnique({ where: { id } });
+  private async updateSlug(id: number, slug: string) {
+    const category = await this.Category.update({
+      where: { id },
+      data: { slug },
+    });
+    return category;
   }
 
-  async findByIdAndUpdate(
-    id: string,
-    data: Prisma.CategoryUncheckedCreateInput,
-  ) {
-    try {
-      return await this.Category.update({
-        where: { id },
-        data,
-      });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
+  private generateIcon(name: string) {
+    return 'ic_' + this.utilService.slugifyText(name).replace(/-/g, '_');
+  }
+
+  async create(data: CreateCategoryData) {
+    const slug = this.generateSlug(data);
+    if (!data.icon) {
+      data.icon = this.generateIcon(data.name);
     }
+    const category = await this.Category.create({
+      data: { ...data, slug },
+    });
+    return category;
   }
 
-  async findByIdAndDelete(id: string) {
-    try {
-      return await this.Category.delete({
-        where: { id },
-      });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
+  async findById(id: number) {
+    const category = await this.Category.findUnique({ where: { id } });
+    return category;
+  }
+
+  async findByIdAndUpdate(id: number, data: UpdateCategoryData) {
+    if (data.name) {
+      data.icon = this.generateIcon(data.name);
     }
-  }
-
-  async findOne(where: Prisma.CategoryWhereInput) {
-    return this.Category.findFirst({ where });
-  }
-
-  async findOneAndUpdate(
-    where: Prisma.CategoryWhereUniqueInput,
-    data?: Prisma.CategoryUpdateInput,
-  ) {
-    try {
-      return await this.Category.update({
-        where,
-        data,
-      });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
+    let category = await this.Category.update({
+      where: { id },
+      data,
+    });
+    if (data.name || data.type) {
+      const slug = this.generateSlug(category);
+      category = await this.updateSlug(category.id, slug);
     }
+    return category;
   }
 
-  async findOneAndDelete(where: Prisma.CategoryWhereUniqueInput) {
-    try {
-      return await this.Category.delete({ where });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
+  async findByIdAndDelete(id: number) {
+    const category = await this.Category.delete({
+      where: { id },
+    });
+    return category;
+  }
+
+  async findOne(where: CategoryWhere) {
+    const category = await this.Category.findFirst({ where });
+    return category;
+  }
+
+  async findOneAndUpdate(where: CategoryWhere, data?: UpdateCategoryData) {
+    if (data.name) {
+      data.icon = this.generateIcon(data.name);
     }
+    let category = await this.Category.update({
+      where,
+      data,
+    });
+    if (data.name || data.type) {
+      const slug = this.generateSlug(category);
+      category = await this.updateSlug(category.id, slug);
+    }
+    return category;
   }
 
-  async findMany(where?: Prisma.CategoryWhereInput) {
-    return this.Category.findMany({ where });
+  async findOneAndDelete(where: CategoryWhere) {
+    const category = await this.Category.delete({ where });
+    return category;
+  }
+
+  async findMany(where?: FilterCategoryWhere) {
+    const categories = await this.Category.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    });
+    return categories;
   }
 }

@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from 'google-auth-library';
 import { GoogleSignIn, GoogleSignUp } from '../auth.interface';
-import { UserRepository } from 'src/shared/user/user.repository';
+import { UserRepository } from 'shared/user/user.repository';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -36,7 +36,10 @@ export class GoogleAuthService {
     // Extract email and name by verifying the provided Google ID token
     const { email, name } = await this.verifyIdToken(data.idToken);
     // Create a new user with the extracted email and name
-    const user = await this.userRepo.create({ email, name, isVerified: true });
+    const user = await this.userRepo.create(
+      { email, name, isVerified: true },
+      { _count: { select: { accounts: true } } },
+    );
     // Generate a JWT token for the newly created user
     const token = await this.jwtService.signAsync({ sub: user.id });
     // Return the token and user details
@@ -47,7 +50,10 @@ export class GoogleAuthService {
     // Extract email and name by verifying the provided Google ID token
     const { email, name } = await this.verifyIdToken(data.idToken);
     // Check if a user with this email exists in the repository
-    let user = await this.userRepo.findOne({ email });
+    let user = await this.userRepo.findOne(
+      { email },
+      { _count: { select: { accounts: true } } },
+    );
     // If user does not exist, throw an error
     if (!user) {
       throw new HttpException(
@@ -64,7 +70,11 @@ export class GoogleAuthService {
     }
     // If a name is provided and different from the current user's name, update the user
     if (name && user.name !== name) {
-      user = await this.userRepo.findByIdAndUpdate(user.id, { name });
+      user = await this.userRepo.findByIdAndUpdate(
+        user.id,
+        { name },
+        { _count: { select: { accounts: true } } },
+      );
     }
     // Generate a JWT token for the authenticated user
     const token = await this.jwtService.signAsync({ sub: user.id });

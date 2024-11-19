@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { OtpService } from 'src/shared/otp/otp.service';
-import { UserRepository } from 'src/shared/user/user.repository';
+import { OtpService } from 'shared/otp/otp.service';
+import { UserRepository } from 'shared/user/user.repository';
 import { SignIn, SignUp } from './auth.interface';
 
 @Injectable()
@@ -14,7 +14,10 @@ export class AuthService {
 
   async signIn(data: SignIn) {
     // Find the user by email
-    let user = await this.userRepo.findOne({ email: data.email });
+    let user = await this.userRepo.findOne(
+      { email: data.email },
+      { _count: { select: { accounts: true } } },
+    );
     // If user is not found, throw an error suggesting to sign up
     if (!user) {
       throw new HttpException(
@@ -38,7 +41,13 @@ export class AuthService {
         HttpStatus.FORBIDDEN,
       );
     }
-    user = await this.userRepo.findByIdAndUpdate(user.id, { isVerified: true });
+    if (!user.isVerified) {
+      user = await this.userRepo.findByIdAndUpdate(
+        user.id,
+        { isVerified: true },
+        { _count: { select: { accounts: true } } },
+      );
+    }
     // Generate a JWT token for the authenticated user
     const token = await this.jwtService.signAsync({ sub: user.id });
     // Return the generated token along with the user details
@@ -47,10 +56,13 @@ export class AuthService {
 
   async signUp(data: SignUp) {
     // Create a new user with the extracted email and name
-    const user = await this.userRepo.create({
-      email: data.email,
-      name: data.name,
-    });
+    const user = await this.userRepo.create(
+      {
+        email: data.email,
+        name: data.name,
+      },
+      { _count: { select: { accounts: true } } },
+    );
     // Send email otp
     // await this.otpService.send(user.email, user.name);
     await this.otpService.send(user.email);

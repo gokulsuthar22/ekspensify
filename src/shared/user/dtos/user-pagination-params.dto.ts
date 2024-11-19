@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { PaginationParamsDto } from 'src/common/dtos/pagination-params.dto';
+import { PaginationParamsDto } from 'common/dtos/pagination-params.dto';
 
 export class UserPaginationParamsDto extends PaginationParamsDto {
   @Expose()

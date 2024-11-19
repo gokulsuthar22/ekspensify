@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { Prisma } from '@prisma/client';
-import { PaginationParams } from 'src/common/types/pagination.type';
+import { PaginationParams } from 'common/types/pagination.type';
 
 @Injectable()
 export class UserService {
@@ -11,15 +11,15 @@ export class UserService {
     return this.userRepo.findMany(where);
   }
 
-  async findById(id: string) {
+  async findById(id: number) {
     return this.userRepo.findById(id);
   }
 
-  async updateById(id: string, data: Prisma.UserUpdateInput) {
+  async updateById(id: number, data: Prisma.UserUpdateInput) {
     return this.userRepo.findByIdAndUpdate(id, data);
   }
 
-  async deleteById(id: string) {
+  async deleteById(id: number) {
     return this.userRepo.findByIdAndDelete(id);
   }
 }

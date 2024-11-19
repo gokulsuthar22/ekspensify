@@ -1,20 +1,33 @@
+import { TxType } from '@prisma/client';
+
+export interface GenerateCategorySlug {
+  name: string;
+  type?: string;
+  userId?: number;
+}
+
 export interface CreateCategoryData {
   name: string;
-  userId?: string;
+  type?: TxType;
+  icon?: string;
+  userId?: number;
 }
 
 export interface CategoryWhere {
-  id: string;
-  userId: string;
+  id: number;
+  userId: number;
 }
 
 export interface UpdateCategoryData {
   name?: string;
+  type?: TxType;
+  icon?: string;
 }
 
 export interface FilterCategoryWhere {
   slug?: string;
-  userId?: string;
+  type?: TxType;
+  userId?: number;
   isActive?: boolean;
   OR?: any;
 }

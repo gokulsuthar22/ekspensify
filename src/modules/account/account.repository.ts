@@ -1,91 +1,143 @@
-import { PrismaService } from '@app/infra/persistence/prisma/prisma.service';
+import { PrismaService } from 'infra/persistence/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { UtilService } from 'common/services/util.service';
+import {
+  AccountWhere,
+  CreateAccountData,
+  FilterAccountWhere,
+  GenerateAccountSlug,
+  UpdateAccountData,
+} from './account.interface';
+import { Account, Prisma } from '@prisma/client';
+import { Repository } from 'common/types/repository.interface';
 
 @Injectable()
-export class AccountRepository {
-  constructor(private prismaService: PrismaService) {}
+export class AccountRepository
+  implements
+    Repository<Account, CreateAccountData, UpdateAccountData, AccountWhere>
+{
+  constructor(
+    private prismaService: PrismaService,
+    private utilService: UtilService,
+  ) {}
 
   private get Account() {
     return this.prismaService.account;
   }
 
-  private includes = {
-    accountType: {
-      select: {
-        name: true,
-        slug: true,
-        category: true,
+  private generateSlug(category: GenerateAccountSlug) {
+    return this.utilService.slugifyText(
+      category.name,
+      category?.type,
+      category?.userId?.toString(),
+    );
+  }
+
+  private generateIcon(name: string) {
+    return 'ic_' + this.utilService.slugifyText(name).replace(/-/g, '_');
+  }
+
+  async create(data: CreateAccountData) {
+    const slug = this.generateSlug(data);
+    if (!data.icon) {
+      data.icon = this.generateIcon(data.name);
+    }
+    const account = await this.Account.create({ data: { ...data, slug } });
+    return account;
+  }
+
+  async findById(id: number) {
+    const account = await this.Account.findUnique({ where: { id } });
+    return account;
+  }
+
+  async findByIdAndUpdate(id: number, data: UpdateAccountData) {
+    if (data.name) {
+      data.icon = this.generateIcon(data.name);
+    }
+    let account = await this.Account.update({
+      where: { id },
+      data,
+    });
+    if (data.name || data.type) {
+      const slug = this.generateSlug(account);
+      account = await this.Account.update({
+        where: account,
+        data: { slug },
+      });
+    }
+    return account;
+  }
+
+  async findByIdAndDelete(id: number) {
+    const account = await this.Account.delete({
+      where: { id },
+    });
+    return account;
+  }
+
+  async findOne(where: AccountWhere) {
+    const account = await this.Account.findFirst({ where });
+    return account;
+  }
+
+  async findOneAndUpdate(where: AccountWhere, data?: UpdateAccountData) {
+    if (data.name) {
+      data.icon = this.generateIcon(data.name);
+    }
+    let account = await this.Account.update({
+      where,
+      data,
+    });
+    if (data.name || data.type) {
+      const slug = this.generateSlug(account);
+      account = await this.Account.update({
+        where: account,
+        data: { slug },
+      });
+    }
+    return account;
+  }
+
+  async findOneAndDelete(where: AccountWhere) {
+    const account = await this.Account.delete({ where });
+    return account;
+  }
+
+  async findMany(where?: FilterAccountWhere) {
+    const accounts = await this.Account.findMany({ where });
+    return accounts;
+  }
+
+  async credit(
+    accountId: number,
+    amount: number,
+    ctx?: Prisma.TransactionClient,
+  ) {
+    const wallet = await ctx.account.update({
+      where: { id: accountId },
+      data: {
+        balance: {
+          increment: amount,
+        },
       },
-    },
-  };
-
-  async create(data: Prisma.AccountUncheckedCreateInput) {
-    return this.Account.create({ data, include: this.includes });
+    });
+    return wallet;
   }
 
-  async findById(id: string) {
-    return this.Account.findUnique({ where: { id }, include: this.includes });
-  }
-
-  async findByIdAndUpdate(
-    id: string,
-    data: Prisma.AccountUncheckedCreateInput,
+  async debit(
+    accountId: number,
+    amount: number,
+    ctx?: Prisma.TransactionClient,
   ) {
-    try {
-      return await this.Account.update({
-        where: { id },
-        data,
-        include: this.includes,
-      });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
-  }
-
-  async findByIdAndDelete(id: string) {
-    try {
-      return await this.Account.delete({
-        where: { id },
-        include: this.includes,
-      });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
-  }
-
-  async findOne(where: Prisma.AccountWhereInput) {
-    return this.Account.findFirst({ where, include: this.includes });
-  }
-
-  async findOneAndUpdate(
-    where: Prisma.AccountWhereUniqueInput,
-    data?: Prisma.AccountUpdateInput,
-  ) {
-    try {
-      return await this.Account.update({
-        where,
-        data,
-        include: this.includes,
-      });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
-  }
-
-  async findOneAndDelete(where: Prisma.AccountWhereUniqueInput) {
-    try {
-      return await this.Account.delete({ where, include: this.includes });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
-  }
-
-  async findMany(where?: Prisma.AccountWhereInput) {
-    return this.Account.findMany({ where, include: this.includes });
+    const wallet = await ctx.account.update({
+      where: { id: accountId },
+      data: {
+        balance: {
+          decrement: amount,
+        },
+      },
+    });
+    return wallet;
   }
 }

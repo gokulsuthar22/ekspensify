@@ -1,19 +1,31 @@
+import { AcType } from '@prisma/client';
+
+export interface GenerateAccountSlug {
+  name: string;
+  type?: AcType;
+  userId?: number;
+}
+
 export interface CreateAccountData {
-  userId: string;
-  accountTypeId: string;
+  name: string;
+  type: AcType;
+  icon?: string;
+  userId: number;
   balance: number;
 }
 
 export interface UpdateAccountData {
-  accountTypeId?: string;
+  name?: string;
+  type?: AcType;
+  icon?: string;
   balance?: number;
 }
 
 export interface AccountWhere {
-  id: string;
-  userId: string;
+  id: number;
+  userId: number;
 }
 
 export interface FilterAccountWhere {
-  userId?: string;
+  userId?: number;
 }

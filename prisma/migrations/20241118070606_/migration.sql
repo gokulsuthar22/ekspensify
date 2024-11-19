@@ -1,0 +1,135 @@
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
+
+-- CreateEnum
+CREATE TYPE "Status" AS ENUM ('ACTIVE', 'INACTIVE');
+
+-- CreateEnum
+CREATE TYPE "MediaType" AS ENUM ('IMAGE', 'VIDEO', 'DOCUMENT');
+
+-- CreateEnum
+CREATE TYPE "TxType" AS ENUM ('CREDIT', 'DEBIT');
+
+-- CreateEnum
+CREATE TYPE "AcType" AS ENUM ('BANK', 'WALLET');
+
+-- CreateTable
+CREATE TABLE "users" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'USER',
+    "status" "Status" NOT NULL DEFAULT 'ACTIVE',
+    "is_verified" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_at" TIMESTAMP(3),
+
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "otps" (
+    "id" SERIAL NOT NULL,
+    "code" INTEGER NOT NULL,
+    "email" TEXT NOT NULL,
+    "is_verified" BOOLEAN NOT NULL DEFAULT false,
+    "expires_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "otps_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "media" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "type" "MediaType" NOT NULL,
+    "path" TEXT NOT NULL,
+    "small" TEXT,
+    "medium" TEXT,
+    "large" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "media_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "transactions" (
+    "id" SERIAL NOT NULL,
+    "user_id" INTEGER NOT NULL,
+    "account_id" INTEGER NOT NULL,
+    "category_id" INTEGER NOT NULL,
+    "attachment_id" INTEGER,
+    "amount" DECIMAL(65,30) NOT NULL,
+    "note" TEXT NOT NULL,
+    "type" "TxType" NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_at" TIMESTAMP(3),
+
+    CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "categories" (
+    "id" SERIAL NOT NULL,
+    "user_id" INTEGER,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "icon" TEXT,
+    "type" "TxType",
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_at" TIMESTAMP(3),
+
+    CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "accounts" (
+    "id" SERIAL NOT NULL,
+    "user_id" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "type" "AcType" NOT NULL,
+    "slug" TEXT NOT NULL,
+    "icon" TEXT,
+    "balance" DECIMAL(65,30) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_at" TIMESTAMP(3),
+
+    CONSTRAINT "accounts_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "otps_email_key" ON "otps"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "categories_slug_key" ON "categories"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "accounts_slug_key" ON "accounts"("slug");
+
+-- AddForeignKey
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_attachment_id_fkey" FOREIGN KEY ("attachment_id") REFERENCES "media"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "categories" ADD CONSTRAINT "categories_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

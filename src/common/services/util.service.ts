@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import slugify from 'slugify';
 import { utc, Moment } from 'moment';
 
 @Injectable()
@@ -17,9 +18,23 @@ export class UtilService {
 
   /**
    * Adds a specified number of minutes to the current time.
-   * @returns {number} - The current time + the added minutes.
+   * @param {number} n - The number of minutes to add.
+   * @returns {Moment} - The current time + the added minutes.
    */
   addMinutes = (n: number): Moment => {
     return utc().add(n, 'minutes');
+  };
+
+  /**
+   * Generates a slug from a given string using `slugify`.
+   * @param {string} text - The string to be converted into a slug.
+   * @returns {string} - The generated slug.
+   */
+  slugifyText = (...args: string[]): string => {
+    return slugify(args.join(' '), {
+      lower: true,
+      trim: true,
+      strict: true,
+    });
   };
 }

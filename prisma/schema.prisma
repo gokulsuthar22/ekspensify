@@ -1,6 +1,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["relationJoins"]
+  binaryTargets   = ["native"]
 }
 
 datasource db {
@@ -13,31 +14,34 @@ enum Role {
   ADMIN
 }
 
-enum UserStatus {
+enum Status {
   ACTIVE
   INACTIVE
 }
 
 model User {
-  id         String     @id @default(uuid())
-  name       String
-  email      String     @unique
-  role       Role       @default(USER)
-  status     UserStatus @default(ACTIVE)
-  isVerified Boolean?   @default(false) @map("is_verified")
-  createdAt  DateTime   @default(now()) @map("created_at")
-  updatedAt  DateTime   @updatedAt @map("updated_at")
-  category   Category[]
-  account    Account[]
+  id         Int       @id @default(autoincrement())
+  name       String    @map("name")
+  email      String    @unique @map("email")
+  role       Role      @default(USER) @map("role")
+  status     Status    @default(ACTIVE) @map("status")
+  isVerified Boolean   @default(true) @map("is_verified")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  accounts     Account[]
+  categories   Category[]
+  transactions Transaction[]
 
   @@map("users")
 }
 
 model Otp {
   id         Int      @id @default(autoincrement())
-  code       Int
-  email      String   @unique
-  isVerified Boolean? @default(false) @map("is_verified")
+  code       Int      @map("code")
+  email      String   @unique @map("email")
+  isVerified Boolean  @default(false) @map("is_verified")
   expiresAt  DateTime @map("expires_at")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
@@ -47,65 +51,87 @@ model Otp {
 
 enum MediaType {
   IMAGE
-  PDF
+  VIDEO
+  DOCUMENT
 }
 
 model Media {
-  id        String    @id @default(uuid())
-  name      String
-  type      MediaType
-  path      String
-  large     String?
-  medium    String?
-  small     String?
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  id          Int           @id @default(autoincrement())
+  name        String        @map("name")
+  type        MediaType     @map("type")
+  path        String        @map("path")
+  small       String?       @map("small")
+  medium      String?       @map("medium")
+  large       String?       @map("large")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  Transaction Transaction[]
 
   @@map("media")
 }
 
+enum TxType {
+  CREDIT
+  DEBIT
+}
+
+model Transaction {
+  id           Int       @id @default(autoincrement())
+  userId       Int       @map("user_id")
+  accountId    Int       @map("account_id")
+  categoryId   Int       @map("category_id")
+  attachmentId Int?      @map("attachment_id")
+  amount       Decimal   @map("amount")
+  note         String    @map("note")
+  type         TxType    @map("type")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  user       User?     @relation(fields: [userId], references: [id])
+  account    Account?  @relation(fields: [accountId], references: [id])
+  category   Category? @relation(fields: [categoryId], references: [id])
+  attachment Media?    @relation(fields: [attachmentId], references: [id])
+
+  @@map("transactions")
+}
+
 model Category {
-  id        String    @id @default(uuid())
-  userId    String?   @map("user_id")
-  slug      String?
-  name      String
-  isActive  Boolean   @default(true) @map("is_active")
+  id        Int       @id @default(autoincrement())
+  userId    Int?      @map("user_id")
+  name      String    @map("name")
+  slug      String    @unique @map("slug")
+  icon      String?   @map("icon")
+  type      TxType?   @map("type")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
-  user      User?     @relation(fields: [userId], references: [id])
+
+  user        User?         @relation(fields: [userId], references: [id])
+  Transaction Transaction[]
 
   @@map("categories")
 }
 
-enum AccountCategory {
+enum AcType {
   BANK
   WALLET
 }
 
-model AccountType {
-  id        String          @id @default(uuid())
-  name      String
-  slug      String?         @unique
-  category  AccountCategory
-  createdAt DateTime        @default(now()) @map("created_at")
-  updatedAt DateTime        @updatedAt @map("updated_at")
-  deletedAt DateTime?       @map("deleted_at")
-  account   Account[]
-
-  @@map("account_types")
-}
-
 model Account {
-  id            String      @id @default(uuid())
-  userId        String      @map("user_id")
-  accountTypeId String      @map("type_id")
-  balance       Decimal
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
-  deletedAt     DateTime?   @map("deleted_at")
-  user          User?       @relation(fields: [userId], references: [id])
-  accountType   AccountType @relation(fields: [accountTypeId], references: [id])
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  name      String    @map("name")
+  type      AcType    @map("type")
+  slug      String    @unique @map("slug")
+  icon      String?   @map("icon")
+  balance   Decimal   @map("balance")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  user        User          @relation(fields: [userId], references: [id])
+  Transaction Transaction[]
 
   @@map("accounts")
 }

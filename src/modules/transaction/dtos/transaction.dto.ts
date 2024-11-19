@@ -1,24 +1,27 @@
 import { Expose, Type } from 'class-transformer';
 
-export class AccountDto {
+export class TransactionDto {
   @Expose()
   id: number;
 
   @Expose()
-  name: string;
+  account: any;
 
   @Expose()
-  type: string;
+  category: any;
 
   @Expose()
-  slug: string;
-
-  @Expose()
-  icon: string;
+  attachment: any;
 
   @Expose()
   @Type(() => Number)
-  balance: number;
+  amount: number;
+
+  @Expose()
+  note: string;
+
+  @Expose()
+  type: string;
 
   @Expose({ name: 'createdAt' })
   created_at: Date;

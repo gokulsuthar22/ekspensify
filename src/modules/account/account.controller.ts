@@ -11,14 +11,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/core/guards/auth.guard';
-import { RoleGuard } from 'src/core/guards/role.guard';
+import { AuthGuard } from 'core/guards/auth.guard';
+import { RoleGuard } from 'core/guards/role.guard';
 import { AccountService } from './account.service';
-import { Roles } from 'src/core/decorators/roles.decorator';
+import { Roles } from 'core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { Serialize } from 'src/core/interceptors/serialize.interceptor';
+import { Serialize } from 'core/interceptors/serialize.interceptor';
 import { AccountDto } from './dtos/account.dto';
-import { CurrentUser } from 'src/core/decorators/current-user.decorator';
+import { CurrentUser } from 'core/decorators/current-user.decorator';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 import { FilterAccountDto } from './dtos/filter-account.dto';
@@ -40,15 +40,15 @@ export class AccountController {
   @Roles(Role.USER)
   @HttpCode(HttpStatus.OK)
   @Serialize(AccountDto)
-  findMany(@Query() where: FilterAccountDto) {
-    return this.accountService.findMany(where);
+  findMany(@CurrentUser() user: any, @Query() where: FilterAccountDto) {
+    return this.accountService.findMany({ ...where, userId: user.id });
   }
 
   @Get(':id')
   @Roles(Role.USER)
   @HttpCode(HttpStatus.OK)
   @Serialize(AccountDto)
-  find(@Param('id') id: string, @CurrentUser() user: any) {
+  find(@Param('id') id: number, @CurrentUser() user: any) {
     return this.accountService.findOne({ id, userId: user.id });
   }
 
@@ -57,7 +57,7 @@ export class AccountController {
   @HttpCode(HttpStatus.OK)
   @Serialize(AccountDto)
   update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @CurrentUser() user: any,
     @Body() data: UpdateAccountDto,
   ) {
@@ -68,7 +68,7 @@ export class AccountController {
   @Roles(Role.USER)
   @HttpCode(HttpStatus.OK)
   @Serialize(AccountDto)
-  delete(@Param('id') id: string, @CurrentUser() user: any) {
+  delete(@Param('id') id: number, @CurrentUser() user: any) {
     return this.accountService.deleteOne({ id, userId: user.id });
   }
 }

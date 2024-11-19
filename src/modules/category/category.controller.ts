@@ -10,18 +10,21 @@ import {
   Post,
   Query,
   UseGuards,
+  // UseInterceptors,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CategoryDto } from './dtos/category.dto';
-import { Serialize } from 'src/core/interceptors/serialize.interceptor';
+import { Serialize } from 'core/interceptors/serialize.interceptor';
 import { CreateCategoryDto } from './dtos/create-category.dto';
-import { AuthGuard } from 'src/core/guards/auth.guard';
-import { RoleGuard } from 'src/core/guards/role.guard';
-import { Roles } from 'src/core/decorators/roles.decorator';
+import { AuthGuard } from 'core/guards/auth.guard';
+import { RoleGuard } from 'core/guards/role.guard';
+import { Roles } from 'core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { CurrentUser } from 'src/core/decorators/current-user.decorator';
+import { CurrentUser } from 'core/decorators/current-user.decorator';
 import { UpdateCategoryDto } from './dtos/update.dto';
 import { FilterCategoryDto } from './dtos/filter-category.dto';
+// import { CacheInterceptor, CacheKey } from '@nestjs/cache-manager';
+// import { CATEGORY_CACHE_KEY } from './category.constants';
 
 @Controller('categories')
 @UseGuards(AuthGuard, RoleGuard)
@@ -34,7 +37,7 @@ export class CategoryController {
   @Serialize(CategoryDto)
   create(@CurrentUser() user: any, @Body() data: CreateCategoryDto) {
     return this.categoryService.create({
-      name: data.name,
+      ...data,
       userId: user.role !== 'ADMIN' ? user.id : null,
     });
   }
@@ -45,7 +48,7 @@ export class CategoryController {
   @Serialize(CategoryDto)
   update(
     @CurrentUser() user: any,
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() data: UpdateCategoryDto,
   ) {
     return this.categoryService.update(
@@ -61,7 +64,7 @@ export class CategoryController {
   @Roles(Role.ADMIN, Role.USER)
   @HttpCode(HttpStatus.OK)
   @Serialize(CategoryDto)
-  delete(@CurrentUser() user: any, @Param('id') id: string) {
+  delete(@CurrentUser() user: any, @Param('id') id: number) {
     return this.categoryService.delete({
       id,
       userId: user.role !== 'ADMIN' ? user.id : null,
@@ -72,6 +75,8 @@ export class CategoryController {
   @Roles(Role.ADMIN, Role.USER)
   @HttpCode(HttpStatus.OK)
   @Serialize(CategoryDto)
+  // @UseInterceptors(CacheInterceptor)
+  // @CacheKey(CATEGORY_CACHE_KEY)
   findMany(@CurrentUser() user: any, @Query() where: FilterCategoryDto) {
     return this.categoryService.findMany({
       ...where,
