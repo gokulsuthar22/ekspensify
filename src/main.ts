@@ -3,7 +3,7 @@ import * as compression from 'compression';
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { RequestMethod, ValidationPipe, VersioningType } from '@nestjs/common';
 import { HttpExceptionFilter } from './core/exceptions/http.exception';
 
 const bootstrap = async () => {
@@ -13,7 +13,9 @@ const bootstrap = async () => {
 
   app.use(compression());
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+    exclude: [{ path: '/', method: RequestMethod.GET }],
+  });
 
   app.enableVersioning({
     type: VersioningType.URI,

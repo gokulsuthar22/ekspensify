@@ -12,6 +12,7 @@ import { AccountModule } from './modules/account/account.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { TransactionModule } from './modules/transaction/transaction.module';
+import { AppController } from 'app.controller';
 
 @Module({
   imports: [
@@ -37,12 +38,14 @@ import { TransactionModule } from './modules/transaction/transaction.module';
     }),
     CacheModule.registerAsync({
       isGlobal: true,
-      useFactory: async () => {
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
         return {
           store: await redisStore({
             socket: {
-              host: 'localhost',
-              port: 6379,
+              host: configService.get('redis').host,
+              port: configService.get('redis').port,
             },
           }),
         };
@@ -55,5 +58,6 @@ import { TransactionModule } from './modules/transaction/transaction.module';
     AccountModule,
     TransactionModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
