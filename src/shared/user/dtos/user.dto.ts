@@ -9,6 +9,9 @@ export class UserDto {
   name: string;
 
   @Expose()
+  avatar: string;
+
+  @Expose()
   @IsEmail()
   email: string;
 

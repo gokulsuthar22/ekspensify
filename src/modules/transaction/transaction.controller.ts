@@ -1,9 +1,13 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseIntPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -17,6 +21,7 @@ import { AuthGuard } from 'core/guards/auth.guard';
 import { RoleGuard } from 'core/guards/role.guard';
 import { CreateTransactionDto } from './dtos/create-transaction.dto';
 import { TransactionDto } from './dtos/transaction.dto';
+import { UpdateTransactionDto } from './dtos/update-transaction.dto';
 
 @Controller('transactions')
 @UseGuards(AuthGuard, RoleGuard)
@@ -26,11 +31,32 @@ export class TransactionController {
   @Post()
   @Roles(Role.USER)
   @HttpCode(HttpStatus.CREATED)
+  @Serialize(TransactionDto)
   create(@CurrentUser() user: any, @Body() data: CreateTransactionDto) {
     return this.transactionService.create({
       ...data,
       userId: user.id,
     });
+  }
+
+  @Patch(':id')
+  @Roles(Role.USER)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(TransactionDto)
+  update(
+    @CurrentUser() user: any,
+    @Param('id') id: ParseIntPipe,
+    @Body() data: UpdateTransactionDto,
+  ) {
+    return this.transactionService.update({ id: +id, userId: user.id }, data);
+  }
+
+  @Delete(':id')
+  @Roles(Role.USER)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(TransactionDto)
+  delete(@CurrentUser() user: any, @Param('id') id: ParseIntPipe) {
+    return this.transactionService.delete({ id: +id, userId: user.id });
   }
 
   @Get()

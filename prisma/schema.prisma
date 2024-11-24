@@ -22,6 +22,7 @@ enum Status {
 model User {
   id         Int       @id @default(autoincrement())
   name       String    @map("name")
+  avatar     String    @default("ic_avatar_default") @map("avatar")
   email      String    @unique @map("email")
   role       Role      @default(USER) @map("role")
   status     Status    @default(ACTIVE) @map("status")

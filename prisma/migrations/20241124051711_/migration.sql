@@ -16,6 +16,7 @@ CREATE TYPE "AcType" AS ENUM ('BANK', 'WALLET');
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
+    "avatar" TEXT NOT NULL DEFAULT 'ic_avatar_default',
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'USER',

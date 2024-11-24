@@ -15,7 +15,7 @@ export class AccountService {
   async credit(
     accountId: number,
     amount: number,
-    ctx: Prisma.TransactionClient,
+    ctx?: Prisma.TransactionClient,
   ) {
     const account = await this.accountRepo.credit(accountId, amount, ctx);
     return account;
@@ -24,7 +24,7 @@ export class AccountService {
   async debit(
     accountId: number,
     amount: number,
-    ctx: Prisma.TransactionClient,
+    ctx?: Prisma.TransactionClient,
   ) {
     const account = await this.accountRepo.debit(accountId, amount, ctx);
     return account;

@@ -14,10 +14,40 @@ export class TransactionRepository {
     return this.prismaService.transaction;
   }
 
+  private select = {
+    id: true,
+    accountId: true,
+    amount: true,
+    note: true,
+    type: true,
+    createdAt: true,
+    updatedAt: true,
+    deletedAt: true,
+    account: {
+      select: {
+        name: true,
+        icon: true,
+      },
+    },
+    category: {
+      select: {
+        name: true,
+        icon: true,
+      },
+    },
+    attachment: {
+      select: {
+        small: true,
+        medium: true,
+        large: true,
+      },
+    },
+  };
+
   async create(data: Prisma.TransactionUncheckedCreateInput) {
     try {
       const tx = await this.prismaService.$transaction(async (ctx) => {
-        const tx = await ctx.transaction.create({ data });
+        const tx = await ctx.transaction.create({ data, select: this.select });
         const wallet = await this.accountService[data.type.toLowerCase()](
           data.accountId,
           data.amount,
@@ -42,98 +72,85 @@ export class TransactionRepository {
   }
 
   async findById(id: number) {
-    return this.Transaction.findUnique({ where: { id } });
+    const transaction = await this.Transaction.findUnique({
+      where: { id },
+      select: this.select,
+    });
+    return transaction;
   }
 
   async findByIdAndUpdate(
     id: number,
     data: Prisma.TransactionUncheckedCreateInput,
   ) {
-    try {
-      return await this.Transaction.update({
-        where: { id },
-        data,
-      });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
+    const transaction = await this.Transaction.update({
+      where: { id },
+      data,
+      select: this.select,
+    });
+    return transaction;
   }
 
   async findByIdAndDelete(id: number) {
-    try {
-      return await this.Transaction.delete({
+    const transaction = await this.prismaService.$transaction(async (ctx) => {
+      const transaction = await ctx.transaction.delete({
         where: { id },
+        select: this.select,
       });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
+      if (transaction) {
+        await this.accountService.credit(
+          transaction.accountId,
+          +transaction.amount,
+        );
+      }
+      return transaction;
+    });
+    return transaction;
   }
 
   async findOne(where: Prisma.TransactionWhereInput) {
-    return this.Transaction.findFirst({ where });
+    const transaction = await this.Transaction.findFirst({
+      where,
+      select: this.select,
+    });
+    return transaction;
   }
 
   async findOneAndUpdate(
     where: Prisma.TransactionWhereUniqueInput,
     data?: Prisma.TransactionUpdateInput,
   ) {
-    try {
-      return await this.Transaction.update({
-        where,
-        data,
-      });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
+    const transaction = await this.Transaction.update({
+      where,
+      data,
+      select: this.select,
+    });
+    return transaction;
   }
 
   async findOneAndDelete(where: Prisma.TransactionWhereUniqueInput) {
-    try {
-      return await this.Transaction.delete({ where });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
+    const transaction = await this.prismaService.$transaction(async (ctx) => {
+      const transaction = await ctx.transaction.delete({
+        where,
+        select: this.select,
+      });
+      if (transaction) {
+        await this.accountService.credit(
+          transaction.accountId,
+          +transaction.amount,
+          ctx,
+        );
+      }
+      return transaction;
+    });
+    return transaction;
   }
 
   async findMany(where?: Prisma.TransactionWhereInput) {
-    return this.Transaction.findMany({
+    const transactions = await this.Transaction.findMany({
       where,
-      select: {
-        id: true,
-        amount: true,
-        note: true,
-        type: true,
-        createdAt: true,
-        updatedAt: true,
-        deletedAt: true,
-        account: {
-          select: {
-            name: true,
-            icon: true,
-          },
-        },
-        category: {
-          select: {
-            name: true,
-            icon: true,
-          },
-        },
-        attachment: {
-          select: {
-            small: true,
-            medium: true,
-            large: true,
-          },
-        },
-      },
+      select: this.select,
     });
-    // return this.paginationService.paginate<Transaction>(
-    //   this.Transaction,
-    //   where,
-    // );
+    return transactions;
   }
 }
