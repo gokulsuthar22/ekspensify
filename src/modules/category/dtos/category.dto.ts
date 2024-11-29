@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 
 export class CategoryDto {
   @Expose()
@@ -13,8 +13,9 @@ export class CategoryDto {
   @Expose()
   type: string;
 
-  @Expose()
-  icon: string;
+  @Expose({ name: 'icon' })
+  @Transform(({ obj }) => obj?.icon?.path)
+  icon?: string;
 
   @Expose({ name: 'userId' })
   user_id: number;

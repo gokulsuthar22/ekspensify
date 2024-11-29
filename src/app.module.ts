@@ -13,6 +13,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { AppController } from 'app.controller';
+import { CustomCategoryIconModule } from 'modules/custom-category-icons/custom-category-icon.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { AppController } from 'app.controller';
     CategoryModule,
     AccountModule,
     TransactionModule,
+    CustomCategoryIconModule,
   ],
   controllers: [AppController],
 })

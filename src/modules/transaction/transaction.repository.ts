@@ -37,9 +37,7 @@ export class TransactionRepository {
     },
     attachment: {
       select: {
-        small: true,
-        medium: true,
-        large: true,
+        path: true,
       },
     },
   };

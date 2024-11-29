@@ -9,7 +9,7 @@ export interface GenerateCategorySlug {
 export interface CreateCategoryData {
   name: string;
   type?: TxType;
-  icon?: string;
+  iconId?: number;
   userId?: number;
 }
 
@@ -21,7 +21,7 @@ export interface CategoryWhere {
 export interface UpdateCategoryData {
   name?: string;
   type?: TxType;
-  icon?: string;
+  iconId?: number;
 }
 
 export interface FilterCategoryWhere {
@@ -30,4 +30,9 @@ export interface FilterCategoryWhere {
   userId?: number;
   isActive?: boolean;
   OR?: any;
+}
+
+export interface UploadIconData {
+  icon: Express.Multer.File;
+  userId: number;
 }

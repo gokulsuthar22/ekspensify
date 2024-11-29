@@ -52,15 +52,15 @@ const users = [
 
 async function main() {
   await Promise.all([
-    prisma.category.createMany({
-      data: categories.map((c) => {
-        return {
-          ...c,
-          slug: `${c.name}-${c.type}`.toLowerCase().replace(/ /g, '-'),
-          icon: 'ic_' + c.name.toLowerCase().replace(/ /g, '-'),
-        } as any;
-      }),
-    }),
+    // prisma.category.createMany({
+    //   data: categories.map((c) => {
+    //     return {
+    //       ...c,
+    //       slug: `${c.name}-${c.type}`.toLowerCase().replace(/ /g, '-'),
+    //       // icon: 'ic_' + c.name.toLowerCase().replace(/ /g, '-'),
+    //     } as any;
+    //   }),
+    // }),
     prisma.user.createMany({
       data: users as any,
     }),

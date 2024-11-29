@@ -27,7 +27,7 @@ export class TransactionService {
       path: sample.large,
       ...sample,
       type: 'IMAGE',
-    });
+    } as any);
 
     return this.transactionRepo.create({
       ...data,

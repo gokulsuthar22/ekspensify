@@ -1,25 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { Prisma } from '@prisma/client';
 import { PaginationParams } from 'common/types/pagination.type';
+import { AppHttpException } from 'core/exceptions/http.exception';
 
 @Injectable()
 export class UserService {
   constructor(private userRepo: UserRepository) {}
 
-  async findMany(where?: PaginationParams) {
-    return this.userRepo.findMany(where);
-  }
-
   async findById(id: number) {
-    return this.userRepo.findById(id);
+    const user = await this.userRepo.findById(id);
+    if (!user) {
+      throw new AppHttpException(HttpStatus.NOT_FOUND, 'User not found');
+    }
+    return user;
   }
 
   async updateById(id: number, data: Prisma.UserUpdateInput) {
-    return this.userRepo.findByIdAndUpdate(id, data);
+    const user = await this.userRepo.findByIdAndUpdate(id, data);
+    if (!user) {
+      throw new AppHttpException(HttpStatus.NOT_FOUND, 'User not found');
+    }
+    return user;
   }
 
   async deleteById(id: number) {
-    return this.userRepo.findByIdAndDelete(id);
+    const user = await this.userRepo.findByIdAndDelete(id);
+    if (!user) {
+      throw new AppHttpException(HttpStatus.NOT_FOUND, 'User not found');
+    }
+    return user;
+  }
+
+  async findMany(where?: PaginationParams) {
+    const users = await this.userRepo.findMany(where);
+    return users;
   }
 }

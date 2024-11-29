@@ -25,6 +25,14 @@ export class CategoryRepository
     return this.prismaService.category;
   }
 
+  private include = {
+    icon: {
+      select: {
+        path: true,
+      },
+    },
+  };
+
   private generateSlug(category: GenerateCategorySlug) {
     return this.utilService.slugifyText(
       category.name,
@@ -37,37 +45,33 @@ export class CategoryRepository
     const category = await this.Category.update({
       where: { id },
       data: { slug },
+      include: this.include,
     });
     return category;
   }
 
-  private generateIcon(name: string) {
-    return 'ic_' + this.utilService.slugifyText(name).replace(/-/g, '_');
-  }
-
   async create(data: CreateCategoryData) {
     const slug = this.generateSlug(data);
-    if (!data.icon) {
-      data.icon = this.generateIcon(data.name);
-    }
     const category = await this.Category.create({
       data: { ...data, slug },
+      include: this.include,
     });
     return category;
   }
 
   async findById(id: number) {
-    const category = await this.Category.findUnique({ where: { id } });
+    const category = await this.Category.findUnique({
+      where: { id },
+      include: this.include,
+    });
     return category;
   }
 
   async findByIdAndUpdate(id: number, data: UpdateCategoryData) {
-    if (data.name) {
-      data.icon = this.generateIcon(data.name);
-    }
     let category = await this.Category.update({
       where: { id },
       data,
+      include: this.include,
     });
     if (data.name || data.type) {
       const slug = this.generateSlug(category);
@@ -79,22 +83,24 @@ export class CategoryRepository
   async findByIdAndDelete(id: number) {
     const category = await this.Category.delete({
       where: { id },
+      include: this.include,
     });
     return category;
   }
 
   async findOne(where: CategoryWhere) {
-    const category = await this.Category.findFirst({ where });
+    const category = await this.Category.findFirst({
+      where,
+      include: this.include,
+    });
     return category;
   }
 
   async findOneAndUpdate(where: CategoryWhere, data?: UpdateCategoryData) {
-    if (data.name) {
-      data.icon = this.generateIcon(data.name);
-    }
     let category = await this.Category.update({
       where,
       data,
+      include: this.include,
     });
     if (data.name || data.type) {
       const slug = this.generateSlug(category);
@@ -104,7 +110,10 @@ export class CategoryRepository
   }
 
   async findOneAndDelete(where: CategoryWhere) {
-    const category = await this.Category.delete({ where });
+    const category = await this.Category.delete({
+      where,
+      include: this.include,
+    });
     return category;
   }
 
@@ -112,6 +121,7 @@ export class CategoryRepository
     const categories = await this.Category.findMany({
       where,
       orderBy: { createdAt: 'desc' },
+      include: this.include,
     });
     return categories;
   }

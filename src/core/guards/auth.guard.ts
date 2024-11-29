@@ -1,11 +1,13 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpStatus,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { AppHttpException } from 'core/exceptions/http.exception';
+import { HttpReason } from 'core/exceptions/http.reasons';
 import { Request } from 'express';
 import { UserRepository } from 'shared/user/user.repository';
 
@@ -22,8 +24,10 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException(
-        'You are not logged in! Please log in to get access',
+      throw new AppHttpException(
+        HttpStatus.UNAUTHORIZED,
+        'No token provided',
+        HttpReason.UNAUTHORIZED,
       );
     }
 
@@ -35,20 +39,23 @@ export class AuthGuard implements CanActivate {
       const user = await this.userRepo.findById(payload.sub);
 
       if (!user) {
-        throw new UnauthorizedException(
-          'The user belonging to this token does no longer exist',
+        throw new AppHttpException(
+          HttpStatus.UNAUTHORIZED,
+          'Invalid token or expired',
+          HttpReason.UNAUTHORIZED,
         );
       }
 
-      request['user'] = user;
+      request.user = user;
     } catch (error: any) {
-      if (error instanceof JsonWebTokenError) {
-        throw new UnauthorizedException('Invalid token! Please log in again.');
-      }
-
-      if (error instanceof TokenExpiredError) {
-        throw new UnauthorizedException(
-          'Your token has expired! Please log in again.',
+      if (
+        error instanceof JsonWebTokenError ||
+        error instanceof TokenExpiredError
+      ) {
+        throw new AppHttpException(
+          HttpStatus.UNAUTHORIZED,
+          'Invalid token or expired',
+          HttpReason.UNAUTHORIZED,
         );
       }
 

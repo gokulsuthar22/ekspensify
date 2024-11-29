@@ -17,7 +17,8 @@ export class UserRepository {
 
   async create(data: Prisma.UserCreateInput, include?: Prisma.UserInclude) {
     try {
-      return await this.User.create({ data, include });
+      const user = await this.User.create({ data, include });
+      return user;
     } catch (error: any) {
       if (error.code === 'P2002') {
         throw new HttpException(
@@ -30,7 +31,8 @@ export class UserRepository {
   }
 
   async findById(id: number, include?: Prisma.UserInclude) {
-    return this.User.findUnique({ where: { id }, include });
+    const user = await this.User.findUnique({ where: { id }, include });
+    return user;
   }
 
   async findByIdAndUpdate(
@@ -38,25 +40,18 @@ export class UserRepository {
     data: Prisma.UserUpdateInput,
     include?: Prisma.UserInclude,
   ) {
-    try {
-      return await this.User.update({ where: { id }, data, include });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
+    const user = await this.User.update({ where: { id }, data, include });
+    return user;
   }
 
   async findByIdAndDelete(id: number, include?: Prisma.UserInclude) {
-    try {
-      return await this.User.delete({ where: { id }, include });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
+    const user = await this.User.delete({ where: { id }, include });
+    return user;
   }
 
   async findOne(where: Prisma.UserWhereInput, include?: Prisma.UserInclude) {
-    return this.User.findFirst({ where, include });
+    const user = await this.User.findFirst({ where, include });
+    return user;
   }
 
   async findOneAndUpdate(
@@ -64,27 +59,20 @@ export class UserRepository {
     data: Prisma.UserUpdateInput,
     include?: Prisma.UserInclude,
   ) {
-    try {
-      return await this.User.update({ where, data, include });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
+    const user = await this.User.update({ where, data, include });
+    return user;
   }
 
   async findOneAndDelete(
     where: Prisma.UserWhereUniqueInput,
     include?: Prisma.UserInclude,
   ) {
-    try {
-      return await this.User.delete({ where, include });
-    } catch (error: any) {
-      if (error.code === 'P2025') return null;
-      throw error;
-    }
+    const user = await this.User.delete({ where, include });
+    return user;
   }
 
   async findMany(where?: PaginationParams) {
-    return this.paginationService.paginate<User>(this.User, where);
+    const user = await this.paginationService.paginate<User>(this.User, where);
+    return user;
   }
 }

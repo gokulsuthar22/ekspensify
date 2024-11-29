@@ -1,6 +1,12 @@
 import { PrismaService } from 'infra/persistence/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import {
+  CreateMediaData,
+  FilterMediaWhere,
+  MediaWhere,
+  UpdateMediaData,
+} from './media.interface';
 
 @Injectable()
 export class MediaRepository {
@@ -10,38 +16,46 @@ export class MediaRepository {
     return this.prismaService.media;
   }
 
-  async create(data: Prisma.MediaCreateInput) {
-    return this.Media.create({ data });
+  async create(data: CreateMediaData) {
+    const media = await this.Media.create({ data });
+    return media;
   }
 
   async findById(id: number) {
-    return this.Media.findUnique({ where: { id } });
+    const media = await this.Media.findUnique({ where: { id } });
+    return media;
   }
 
-  async findByIdAndUpdate(id: number, data: Prisma.MediaUpdateInput) {
-    return this.Media.update({ where: { id }, data });
+  async findByIdAndUpdate(id: number, data: UpdateMediaData) {
+    const media = await this.Media.update({ where: { id }, data });
+    return media;
   }
 
   async findByIdAndDelete(id: number) {
-    return this.Media.delete({ where: { id } });
+    const media = await this.Media.delete({ where: { id } });
+    return media;
   }
 
-  async findOne(where: Prisma.MediaWhereInput) {
-    return this.Media.findFirst({ where });
+  async findOne(where: MediaWhere) {
+    const media = await this.Media.findFirst({ where });
+    return media;
   }
 
   async findOneAndUpdate(
     where: Prisma.MediaWhereUniqueInput,
     data: Prisma.MediaUpdateInput,
   ) {
-    return this.Media.update({ where, data });
+    const media = await this.Media.update({ where, data });
+    return media;
   }
 
   async findOneAndDelete(where: Prisma.MediaWhereUniqueInput) {
-    return this.Media.delete({ where });
+    const media = await this.Media.delete({ where });
+    return media;
   }
 
-  async findMany(where?: Prisma.MediaWhereInput) {
-    return this.Media.findMany({ where });
+  async findMany(where?: FilterMediaWhere) {
+    const media = await this.Media.findMany({ where });
+    return media;
   }
 }

@@ -9,8 +9,9 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
-  // UseInterceptors,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CategoryDto } from './dtos/category.dto';
@@ -23,8 +24,10 @@ import { Role } from '@prisma/client';
 import { CurrentUser } from 'core/decorators/current-user.decorator';
 import { UpdateCategoryDto } from './dtos/update.dto';
 import { FilterCategoryDto } from './dtos/filter-category.dto';
-// import { CacheInterceptor, CacheKey } from '@nestjs/cache-manager';
-// import { CATEGORY_CACHE_KEY } from './category.constants';
+import { ExtentedParseIntPipe } from 'core/pipes/extended-parse-int.pipe';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CategoryIconValidationPipe } from './pipes/category-icon-validation.pipe';
+import { MediaDto } from 'helper/media/dtos/media.dto';
 
 @Controller('categories')
 @UseGuards(AuthGuard, RoleGuard)
@@ -42,18 +45,44 @@ export class CategoryController {
     });
   }
 
+  @Get()
+  @Roles(Role.ADMIN, Role.USER)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(CategoryDto)
+  findMany(@CurrentUser() user: any, @Query() where: FilterCategoryDto) {
+    return this.categoryService.findMany({
+      ...where,
+      OR:
+        user.role !== 'ADMIN'
+          ? [{ userId: null }, { userId: user.id }]
+          : [{ userId: null }],
+    });
+  }
+
+  @Post('upload-icon')
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(MediaDto)
+  @UseInterceptors(FileInterceptor('icon'))
+  uploadIcons(
+    @UploadedFile(new CategoryIconValidationPipe()) icon: Express.Multer.File,
+    @CurrentUser() user: any,
+  ) {
+    return this.categoryService.uploadIcon({ icon, userId: user.id });
+  }
+
   @Patch(':id')
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Serialize(CategoryDto)
   update(
     @CurrentUser() user: any,
-    @Param('id') id: number,
+    @Param('id', ExtentedParseIntPipe) id: number,
     @Body() data: UpdateCategoryDto,
   ) {
     return this.categoryService.update(
       {
-        id,
+        id: +id,
         userId: user.role !== 'ADMIN' ? user.id : null,
       },
       data,
@@ -64,26 +93,13 @@ export class CategoryController {
   @Roles(Role.ADMIN, Role.USER)
   @HttpCode(HttpStatus.OK)
   @Serialize(CategoryDto)
-  delete(@CurrentUser() user: any, @Param('id') id: number) {
+  delete(
+    @CurrentUser() user: any,
+    @Param('id', ExtentedParseIntPipe) id: number,
+  ) {
     return this.categoryService.delete({
-      id,
+      id: +id,
       userId: user.role !== 'ADMIN' ? user.id : null,
-    });
-  }
-
-  @Get()
-  @Roles(Role.ADMIN, Role.USER)
-  @HttpCode(HttpStatus.OK)
-  @Serialize(CategoryDto)
-  // @UseInterceptors(CacheInterceptor)
-  // @CacheKey(CATEGORY_CACHE_KEY)
-  findMany(@CurrentUser() user: any, @Query() where: FilterCategoryDto) {
-    return this.categoryService.findMany({
-      ...where,
-      OR:
-        user.role !== 'ADMIN'
-          ? [{ userId: null }, { userId: user.id }]
-          : [{ userId: null }],
     });
   }
 }

@@ -34,6 +34,7 @@ model User {
   accounts     Account[]
   categories   Category[]
   transactions Transaction[]
+  Media        Media[]
 
   @@map("users")
 }
@@ -52,21 +53,37 @@ model Otp {
 
 enum MediaType {
   IMAGE
-  VIDEO
-  DOCUMENT
+}
+
+enum ModelType {
+  CATEGORY
+  TRANSACTION
+}
+
+enum MediaCollection {
+  CATEGORY
+  TRANSACTION
 }
 
 model Media {
-  id          Int           @id @default(autoincrement())
-  name        String        @map("name")
-  type        MediaType     @map("type")
-  path        String        @map("path")
-  small       String?       @map("small")
-  medium      String?       @map("medium")
-  large       String?       @map("large")
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt @map("updated_at")
-  Transaction Transaction[]
+  id                 Int                  @id @default(autoincrement())
+  userId             Int                  @map("user_id")
+  modelId            Int?                 @map("model_id")
+  modelType          ModelType?           @map("model_type")
+  name               String               @map("name")
+  key                String               @map("key")
+  path               String               @map("path")
+  mime               String               @map("mime")
+  type               MediaType            @map("type")
+  size               Int                  @map("size")
+  collection         MediaCollection      @map("collection")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  deletedAt          DateTime?            @map("deleted_at")
+  user               User                 @relation(fields: [userId], references: [id])
+  Category           Category[]
+  Transaction        Transaction[]
+  CustomCategoryIcon CustomCategoryIcon[]
 
   @@map("media")
 }
@@ -89,10 +106,10 @@ model Transaction {
   updatedAt    DateTime  @updatedAt @map("updated_at")
   deletedAt    DateTime? @map("deleted_at")
 
+  attachment Media?    @relation(fields: [attachmentId], references: [id])
   user       User?     @relation(fields: [userId], references: [id])
   account    Account?  @relation(fields: [accountId], references: [id])
   category   Category? @relation(fields: [categoryId], references: [id])
-  attachment Media?    @relation(fields: [attachmentId], references: [id])
 
   @@map("transactions")
 }
@@ -100,15 +117,17 @@ model Transaction {
 model Category {
   id        Int       @id @default(autoincrement())
   userId    Int?      @map("user_id")
+  iconId    Int?      @map("icon_id")
   name      String    @map("name")
-  slug      String    @unique @map("slug")
-  icon      String?   @map("icon")
+  slug      String    @map("slug")
   type      TxType?   @map("type")
+  isActive  Boolean   @default(true) @map("is_active")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   user        User?         @relation(fields: [userId], references: [id])
+  icon        Media?        @relation(fields: [iconId], references: [id])
   Transaction Transaction[]
 
   @@map("categories")
@@ -135,4 +154,13 @@ model Account {
   Transaction Transaction[]
 
   @@map("accounts")
+}
+
+model CustomCategoryIcon {
+  id        Int      @id @default(autoincrement())
+  iconId    Int      @map("icon_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  icon      Media?   @relation(fields: [iconId], references: [id])
+
+  @@map("custom_category_icons")
 }
