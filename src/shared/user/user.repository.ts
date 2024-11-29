@@ -1,8 +1,9 @@
 import { PrismaService } from 'infra/persistence/prisma/prisma.service';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { PaginationService } from 'common/services/pagination.service';
 import { PaginationParams } from 'common/types/pagination.type';
+import { AppHttpException } from 'core/exceptions/http.exception';
 
 @Injectable()
 export class UserRepository {
@@ -21,9 +22,9 @@ export class UserRepository {
       return user;
     } catch (error: any) {
       if (error.code === 'P2002') {
-        throw new HttpException(
-          'This email is already associated with an account. Please sign in instead.',
+        throw new AppHttpException(
           HttpStatus.CONFLICT,
+          'This email is already associated with an account. Please sign in instead.',
         );
       }
       throw error;

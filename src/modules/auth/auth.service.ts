@@ -1,8 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { OtpService } from 'shared/otp/otp.service';
 import { UserRepository } from 'shared/user/user.repository';
 import { SignIn, SignUp } from './auth.interface';
+import { AppHttpException } from 'core/exceptions/http.exception';
 
 @Injectable()
 export class AuthService {
@@ -20,25 +21,25 @@ export class AuthService {
     );
     // If user is not found, throw an error suggesting to sign up
     if (!user) {
-      throw new HttpException(
-        'No account found with this email. Please sign up first.',
+      throw new AppHttpException(
         HttpStatus.NOT_FOUND,
+        'No account found with this email. Please sign up first.',
       );
     }
     // Verify the OTP for the provided email
     const isValidOtp = await this.otpService.verify(data.email, +data.otp);
     // If the OTP is invalid, throw an error indicating it is incorrect or expired
     if (!isValidOtp) {
-      throw new HttpException(
-        'Incorrect OTP or has been expired',
+      throw new AppHttpException(
         HttpStatus.UNAUTHORIZED,
+        'Incorrect OTP or has been expired',
       );
     }
     // Check if the user's account status is inactive, and throw an error if it is
     if (user.status === 'INACTIVE') {
-      throw new HttpException(
-        'Your account is currently inactive. Please contact support to reactivate it.',
+      throw new AppHttpException(
         HttpStatus.FORBIDDEN,
+        'Your account is currently inactive. Please contact support to reactivate it.',
       );
     }
     if (!user.isVerified) {

@@ -8,7 +8,6 @@ import {
   UploadIconData,
 } from './category.interface';
 import { AppHttpException } from 'core/exceptions/http.exception';
-import { CategoryReason } from './category.constants';
 import { MediaRepository } from 'helper/media/media.repository';
 import { AwsS3Service } from 'helper/media/services/aws-s3.service';
 
@@ -35,7 +34,6 @@ export class CategoryService {
       throw new AppHttpException(
         HttpStatus.NOT_FOUND,
         'Category does not exist',
-        CategoryReason.CATEGORY_NOT_FOUND,
       );
     }
     return category;
@@ -47,7 +45,6 @@ export class CategoryService {
       throw new AppHttpException(
         HttpStatus.NOT_FOUND,
         'Category does not exist',
-        CategoryReason.CATEGORY_NOT_FOUND,
       );
     }
     return category;

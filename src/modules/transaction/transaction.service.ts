@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { TransactionRepository } from './transaction.repository';
 import {
   CreateTransactionData,
@@ -7,6 +7,7 @@ import {
   UpdateTransactionData,
 } from './transaction.interface';
 import { MediaRepository } from 'helper/media/media.repository';
+import { AppHttpException } from 'core/exceptions/http.exception';
 
 @Injectable()
 export class TransactionService {
@@ -41,7 +42,7 @@ export class TransactionService {
       data,
     );
     if (!Transaction) {
-      throw new HttpException('Transaction not found', HttpStatus.NOT_FOUND);
+      throw new AppHttpException(HttpStatus.NOT_FOUND, 'Transaction not found');
     }
     return Transaction;
   }
@@ -49,7 +50,7 @@ export class TransactionService {
   async delete(where: TransactionWhere) {
     const Transaction = await this.transactionRepo.findOneAndDelete(where);
     if (!Transaction) {
-      throw new HttpException('Transaction not found', HttpStatus.NOT_FOUND);
+      throw new AppHttpException(HttpStatus.NOT_FOUND, 'Transaction not found');
     }
     return Transaction;
   }

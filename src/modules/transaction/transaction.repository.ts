@@ -1,7 +1,8 @@
 import { PrismaService } from 'infra/persistence/prisma/prisma.service';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AccountService } from '../account/account.service';
+import { AppHttpException } from 'core/exceptions/http.exception';
 
 @Injectable()
 export class TransactionRepository {
@@ -52,9 +53,9 @@ export class TransactionRepository {
           ctx,
         );
         if (wallet.balance < 0) {
-          throw new HttpException(
-            'Insufficient balance',
+          throw new AppHttpException(
             HttpStatus.BAD_REQUEST,
+            'Insufficient balance',
           );
         }
         return tx;
@@ -62,9 +63,11 @@ export class TransactionRepository {
       return tx;
     } catch (e: any) {
       console.error(e);
-      throw new HttpException(
-        e instanceof HttpException ? e.message : 'Failed to create transaction',
+      throw new AppHttpException(
         HttpStatus.BAD_REQUEST,
+        e instanceof AppHttpException
+          ? e.message
+          : 'Failed to create transaction',
       );
     }
   }

@@ -1,8 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { OtpRepository } from './otp.repository';
 import { utc } from 'moment';
 import { UserRepository } from '../user/user.repository';
 import { MailService } from 'helper/mail/mail.service';
+import { AppHttpException } from 'core/exceptions/http.exception';
 
 @Injectable()
 export class OtpService {
@@ -16,9 +17,9 @@ export class OtpService {
     const user = await this.userRepo.findOne({ email });
     // If user is not found, throw an error with a clear message
     if (!user) {
-      throw new HttpException(
-        'No account found with this email.',
+      throw new AppHttpException(
         HttpStatus.NOT_FOUND,
+        'No account found with this email.',
       );
     }
     await this.otpRepo.create({ email }); // Remove this and uncomment below code

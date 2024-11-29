@@ -1,9 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from 'google-auth-library';
 import { GoogleSignIn, GoogleSignUp } from '../auth.interface';
 import { UserRepository } from 'shared/user/user.repository';
 import { JwtService } from '@nestjs/jwt';
+import { AppHttpException } from 'core/exceptions/http.exception';
 
 @Injectable()
 export class GoogleAuthService {
@@ -25,9 +26,9 @@ export class GoogleAuthService {
       const payload = ticket.getPayload();
       return { email: payload.email, name: payload.name };
     } catch (error: any) {
-      throw new HttpException(
-        'Invalid token: ' + error.message,
+      throw new AppHttpException(
         HttpStatus.UNAUTHORIZED,
+        'Invalid token: ' + error.message,
       );
     }
   }
@@ -56,16 +57,16 @@ export class GoogleAuthService {
     );
     // If user does not exist, throw an error
     if (!user) {
-      throw new HttpException(
-        'No account found with this email. Please sign up first.',
+      throw new AppHttpException(
         HttpStatus.NOT_FOUND,
+        'No account found with this email. Please sign up first.',
       );
     }
     // If user account is inactive, throw an error
     if (user.status === 'INACTIVE') {
-      throw new HttpException(
-        'Your account is currently inactive. Please contact support to reactivate it.',
+      throw new AppHttpException(
         HttpStatus.FORBIDDEN,
+        'Your account is currently inactive. Please contact support to reactivate it.',
       );
     }
     // If a name is provided and different from the current user's name, update the user

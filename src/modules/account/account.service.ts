@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { AccountRepository } from './account.repository';
 import {
   AccountWhere,
@@ -7,6 +7,7 @@ import {
   UpdateAccountData,
 } from './account.interface';
 import { Prisma } from '@prisma/client';
+import { AppHttpException } from 'core/exceptions/http.exception';
 
 @Injectable()
 export class AccountService {
@@ -36,7 +37,10 @@ export class AccountService {
       return account;
     } catch (error) {
       if (error.code === 'P2002') {
-        throw new HttpException('Account already exist', HttpStatus.CONFLICT);
+        throw new AppHttpException(
+          HttpStatus.CONFLICT,
+          'Account already exist',
+        );
       }
     }
   }
@@ -44,7 +48,7 @@ export class AccountService {
   async findOne(where: AccountWhere) {
     const account = await this.accountRepo.findOne(where);
     if (!account) {
-      throw new HttpException('Account not found', HttpStatus.NOT_FOUND);
+      throw new AppHttpException(HttpStatus.NOT_FOUND, 'Account not found');
     }
     return account;
   }
@@ -52,7 +56,7 @@ export class AccountService {
   async updateOne(where: AccountWhere, data: UpdateAccountData) {
     const account = await this.accountRepo.findOneAndUpdate(where, data);
     if (!account) {
-      throw new HttpException('Account not found', HttpStatus.NOT_FOUND);
+      throw new AppHttpException(HttpStatus.NOT_FOUND, 'Account not found');
     }
     return account;
   }
@@ -60,7 +64,7 @@ export class AccountService {
   async deleteOne(where: AccountWhere) {
     const account = await this.accountRepo.findOneAndDelete(where);
     if (!account) {
-      throw new HttpException('Account not found', HttpStatus.NOT_FOUND);
+      throw new AppHttpException(HttpStatus.NOT_FOUND, 'Account not found');
     }
     return account;
   }
