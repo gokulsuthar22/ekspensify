@@ -19,9 +19,27 @@ export class CategoryService {
     private awsS3Service: AwsS3Service,
   ) {}
 
+  private async validateIcon(id: number) {
+    const icon = await this.mediaRepo.findById(id);
+    if (!icon) {
+      throw new AppHttpException(
+        HttpStatus.NOT_FOUND,
+        `Icon does not exist by id ${id}`,
+      );
+    }
+    if (icon.modelId) {
+      throw new AppHttpException(
+        HttpStatus.BAD_REQUEST,
+        'Icon belongs to another category',
+      );
+    }
+    return icon;
+  }
+
   async create(data: CreateCategoryData) {
+    const icon = await this.validateIcon(data.iconId);
     const category = await this.categoryRepo.create(data);
-    await this.mediaRepo.findByIdAndUpdate(category.iconId, {
+    await this.mediaRepo.findByIdAndUpdate(icon.id, {
       modelId: category.id,
       modelType: 'CATEGORY',
     });
@@ -29,6 +47,13 @@ export class CategoryService {
   }
 
   async update(where: CategoryWhere, data: UpdateCategoryData) {
+    if (data.iconId) {
+      const icon = await this.validateIcon(data.iconId);
+      await this.mediaRepo.findByIdAndUpdate(icon.id, {
+        modelId: where.id,
+        modelType: 'CATEGORY',
+      });
+    }
     const category = await this.categoryRepo.findOneAndUpdate(where, data);
     if (!category) {
       throw new AppHttpException(

@@ -8,8 +8,8 @@ export interface GenerateCategorySlug {
 
 export interface CreateCategoryData {
   name: string;
+  iconId: number;
   type?: TxType;
-  iconId?: number;
   userId?: number;
 }
 

@@ -22,7 +22,7 @@ import { RoleGuard } from 'core/guards/role.guard';
 import { Roles } from 'core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { CurrentUser } from 'core/decorators/current-user.decorator';
-import { UpdateCategoryDto } from './dtos/update.dto';
+import { UpdateCategoryDto } from './dtos/update-category.dto';
 import { FilterCategoryDto } from './dtos/filter-category.dto';
 import { ExtentedParseIntPipe } from 'core/pipes/extended-parse-int.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
