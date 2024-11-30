@@ -1,6 +1,6 @@
 export const customCategoryIcons = [
   {
     id: 1,
-    iconId: 26,
+    iconId: 25,
   },
 ];

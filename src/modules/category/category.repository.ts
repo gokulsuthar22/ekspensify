@@ -120,7 +120,7 @@ export class CategoryRepository
   async findMany(where?: FilterCategoryWhere) {
     const categories = await this.Category.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { name: 'asc' },
       include: this.include,
     });
     return categories;

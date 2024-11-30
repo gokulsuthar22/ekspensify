@@ -54,7 +54,10 @@ export class CategoryController {
       ...where,
       OR:
         user.role !== 'ADMIN'
-          ? [{ userId: null }, { userId: user.id }]
+          ? [
+              { userId: null, isActive: true },
+              { userId: user.id, isActive: true },
+            ]
           : [{ userId: null }],
     });
   }

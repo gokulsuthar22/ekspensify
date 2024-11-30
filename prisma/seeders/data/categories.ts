@@ -9,7 +9,7 @@ export const categories = [
   },
   {
     id: 2,
-    iconId: 3,
+    iconId: 2,
     name: 'Bike',
     slug: 'bike-debit',
     type: 'DEBIT',
@@ -17,7 +17,7 @@ export const categories = [
   },
   {
     id: 3,
-    iconId: 4,
+    iconId: 3,
     name: 'Car',
     slug: 'car-debit',
     type: 'DEBIT',
@@ -25,7 +25,7 @@ export const categories = [
   },
   {
     id: 4,
-    iconId: 5,
+    iconId: 4,
     name: 'Clothes',
     slug: 'clothes-debit',
     type: 'DEBIT',
@@ -33,7 +33,7 @@ export const categories = [
   },
   {
     id: 5,
-    iconId: 6,
+    iconId: 5,
     name: 'Electricity',
     slug: 'electricity-debit',
     type: 'DEBIT',
@@ -41,7 +41,7 @@ export const categories = [
   },
   {
     id: 6,
-    iconId: 7,
+    iconId: 6,
     name: 'Entertainment',
     slug: 'entertainment-debit',
     type: 'DEBIT',
@@ -49,7 +49,7 @@ export const categories = [
   },
   {
     id: 7,
-    iconId: 8,
+    iconId: 7,
     name: 'Fitness',
     slug: 'fitness-debit',
     type: 'DEBIT',
@@ -57,7 +57,7 @@ export const categories = [
   },
   {
     id: 8,
-    iconId: 9,
+    iconId: 8,
     name: 'Food',
     slug: 'food-debit',
     type: 'DEBIT',
@@ -65,7 +65,7 @@ export const categories = [
   },
   {
     id: 9,
-    iconId: 10,
+    iconId: 9,
     name: 'Fruits',
     slug: 'fruits-debit',
     type: 'DEBIT',
@@ -73,7 +73,7 @@ export const categories = [
   },
   {
     id: 10,
-    iconId: 11,
+    iconId: 10,
     name: 'Game',
     slug: 'game',
     type: null,
@@ -81,7 +81,7 @@ export const categories = [
   },
   {
     id: 11,
-    iconId: 12,
+    iconId: 11,
     name: 'Groceries',
     slug: 'groceries-debit',
     type: 'DEBIT',
@@ -89,7 +89,7 @@ export const categories = [
   },
   {
     id: 12,
-    iconId: 13,
+    iconId: 12,
     name: 'Health Care',
     slug: 'health-care-debit',
     type: 'DEBIT',
@@ -97,7 +97,7 @@ export const categories = [
   },
   {
     id: 13,
-    iconId: 14,
+    iconId: 13,
     name: 'Domestic',
     slug: 'domestic-debit',
     type: 'DEBIT',
@@ -105,7 +105,7 @@ export const categories = [
   },
   {
     id: 14,
-    iconId: 15,
+    iconId: 14,
     name: 'Insurance',
     slug: 'insurance-credit',
     type: 'CREDIT',
@@ -113,7 +113,7 @@ export const categories = [
   },
   {
     id: 15,
-    iconId: 16,
+    iconId: 15,
     name: 'Invest',
     slug: 'invest',
     type: null,
@@ -121,7 +121,7 @@ export const categories = [
   },
   {
     id: 16,
-    iconId: 17,
+    iconId: 16,
     name: 'Office',
     slug: 'office-debit',
     type: 'DEBIT',
@@ -129,7 +129,7 @@ export const categories = [
   },
   {
     id: 17,
-    iconId: 18,
+    iconId: 17,
     name: 'Personal Care',
     slug: 'personal-care-debit',
     type: 'DEBIT',
@@ -137,7 +137,7 @@ export const categories = [
   },
   {
     id: 18,
-    iconId: 19,
+    iconId: 18,
     name: 'Refund',
     slug: 'refund-credit',
     type: 'CREDIT',
@@ -145,7 +145,7 @@ export const categories = [
   },
   {
     id: 19,
-    iconId: 20,
+    iconId: 19,
     name: 'Salary',
     slug: 'salary-credit',
     type: 'CREDIT',
@@ -153,7 +153,7 @@ export const categories = [
   },
   {
     id: 20,
-    iconId: 21,
+    iconId: 20,
     name: 'Education',
     slug: 'education-debit',
     type: 'DEBIT',
@@ -161,7 +161,7 @@ export const categories = [
   },
   {
     id: 21,
-    iconId: 22,
+    iconId: 21,
     name: 'Subscription',
     slug: 'subscription-debit',
     type: 'DEBIT',
@@ -169,7 +169,7 @@ export const categories = [
   },
   {
     id: 22,
-    iconId: 23,
+    iconId: 22,
     name: 'Travel',
     slug: 'travel-debit',
     type: 'DEBIT',
@@ -177,7 +177,7 @@ export const categories = [
   },
   {
     id: 23,
-    iconId: 24,
+    iconId: 23,
     name: 'Water',
     slug: 'water-debit',
     type: 'DEBIT',
@@ -185,7 +185,7 @@ export const categories = [
   },
   {
     id: 24,
-    iconId: 25,
+    iconId: 24,
     name: 'Shopping',
     slug: 'shopping-debit',
     type: 'DEBIT',

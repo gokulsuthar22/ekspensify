@@ -17,19 +17,6 @@ export const media = [
     userId: 1,
     modelId: 2,
     modelType: 'CATEGORY',
-    name: 'ic__accessories.png',
-    key: 'categories/ic__accessories.png_1732935562220.png',
-    path: 'https://budget-buddy-s3-bucket.s3.ap-south-1.amazonaws.com/categories/ic__accessories.png_1732935562220.png',
-    mime: 'image/png',
-    type: 'IMAGE',
-    size: 786,
-    collection: 'CATEGORY',
-  },
-  {
-    id: 3,
-    userId: 1,
-    modelId: 2,
-    modelType: 'CATEGORY',
     name: 'ic_bike.png',
     key: 'categories/ic_bike.png_1732935592250.png',
     path: 'https://budget-buddy-s3-bucket.s3.ap-south-1.amazonaws.com/categories/ic_bike.png_1732935592250.png',
@@ -39,7 +26,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 4,
+    id: 3,
     userId: 1,
     modelId: 3,
     modelType: 'CATEGORY',
@@ -52,7 +39,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 5,
+    id: 4,
     userId: 1,
     modelId: 4,
     modelType: 'CATEGORY',
@@ -65,7 +52,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 6,
+    id: 5,
     userId: 1,
     modelId: 5,
     modelType: 'CATEGORY',
@@ -78,7 +65,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 7,
+    id: 6,
     userId: 1,
     modelId: 6,
     modelType: 'CATEGORY',
@@ -91,7 +78,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 8,
+    id: 7,
     userId: 1,
     modelId: 7,
     modelType: 'CATEGORY',
@@ -104,7 +91,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 9,
+    id: 8,
     userId: 1,
     modelId: 8,
     modelType: 'CATEGORY',
@@ -117,7 +104,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 10,
+    id: 9,
     userId: 1,
     modelId: 9,
     modelType: 'CATEGORY',
@@ -130,7 +117,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 11,
+    id: 10,
     userId: 1,
     modelId: 10,
     modelType: 'CATEGORY',
@@ -143,7 +130,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 12,
+    id: 11,
     userId: 1,
     modelId: 11,
     modelType: 'CATEGORY',
@@ -156,7 +143,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 13,
+    id: 12,
     userId: 1,
     modelId: 12,
     modelType: 'CATEGORY',
@@ -169,7 +156,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 14,
+    id: 13,
     userId: 1,
     modelId: 13,
     modelType: 'CATEGORY',
@@ -182,7 +169,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 15,
+    id: 14,
     userId: 1,
     modelId: 14,
     modelType: 'CATEGORY',
@@ -195,7 +182,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 16,
+    id: 15,
     userId: 1,
     modelId: 15,
     modelType: 'CATEGORY',
@@ -208,7 +195,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 17,
+    id: 16,
     userId: 1,
     modelId: 16,
     modelType: 'CATEGORY',
@@ -221,7 +208,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 18,
+    id: 17,
     userId: 1,
     modelId: 17,
     modelType: 'CATEGORY',
@@ -234,7 +221,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 19,
+    id: 18,
     userId: 1,
     modelId: 18,
     modelType: 'CATEGORY',
@@ -247,7 +234,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 20,
+    id: 19,
     userId: 1,
     modelId: 19,
     modelType: 'CATEGORY',
@@ -260,7 +247,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 21,
+    id: 20,
     userId: 1,
     modelId: 20,
     modelType: 'CATEGORY',
@@ -273,7 +260,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 22,
+    id: 21,
     userId: 1,
     modelId: 21,
     modelType: 'CATEGORY',
@@ -286,7 +273,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 23,
+    id: 22,
     userId: 1,
     modelId: 22,
     modelType: 'CATEGORY',
@@ -299,7 +286,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 24,
+    id: 23,
     userId: 1,
     modelId: 23,
     modelType: 'CATEGORY',
@@ -312,7 +299,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 25,
+    id: 24,
     userId: 1,
     modelId: 24,
     modelType: 'CATEGORY',
@@ -325,7 +312,7 @@ export const media = [
     collection: 'CATEGORY',
   },
   {
-    id: 26,
+    id: 25,
     userId: 1,
     name: 'ic_other.png',
     key: 'categories/ic_other.png_1732937414140.png',

@@ -47,6 +47,9 @@ export class CategoryService {
   }
 
   async update(where: CategoryWhere, data: UpdateCategoryData) {
+    if (!data.iconId) {
+      delete data?.iconId;
+    }
     if (data.iconId) {
       const icon = await this.validateIcon(data.iconId);
       await this.mediaRepo.findByIdAndUpdate(icon.id, {
