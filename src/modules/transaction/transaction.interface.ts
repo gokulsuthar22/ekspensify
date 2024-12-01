@@ -4,6 +4,7 @@ export interface CreateTransactionData {
   userId: number;
   accountId: number;
   categoryId: number;
+  attachmentId: number;
   amount: number;
   note: string;
   type: TxType;
@@ -17,6 +18,7 @@ export interface TransactionWhere {
 export interface UpdateTransactionData {
   accountId?: number;
   categoryId?: number;
+  attachmentId?: number;
   note?: string;
   amount?: number;
   type?: TxType;
@@ -29,4 +31,9 @@ export interface FilterTransactionWhere {
   note?: string;
   amount?: number;
   type?: TxType;
+}
+
+export interface UploadAttachmentData {
+  image: Express.Multer.File;
+  userId: number;
 }

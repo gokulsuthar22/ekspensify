@@ -27,7 +27,7 @@ import { FilterCategoryDto } from './dtos/filter-category.dto';
 import { ExtentedParseIntPipe } from 'core/pipes/extended-parse-int.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CategoryIconValidationPipe } from './pipes/category-icon-validation.pipe';
-import { MediaDto } from 'helper/media/dtos/media.dto';
+import { UploadIconResponseDto } from './dtos/upload-icon-response.dto';
 
 @Controller('categories')
 @UseGuards(AuthGuard, RoleGuard)
@@ -65,7 +65,7 @@ export class CategoryController {
   @Post('upload-icon')
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
-  @Serialize(MediaDto)
+  @Serialize(UploadIconResponseDto)
   @UseInterceptors(FileInterceptor('icon'))
   uploadIcons(
     @UploadedFile(new CategoryIconValidationPipe()) icon: Express.Multer.File,

@@ -8,10 +8,7 @@ CREATE TYPE "Status" AS ENUM ('ACTIVE', 'INACTIVE');
 CREATE TYPE "MediaType" AS ENUM ('IMAGE');
 
 -- CreateEnum
-CREATE TYPE "ModelType" AS ENUM ('CATEGORY', 'TRANSACTION');
-
--- CreateEnum
-CREATE TYPE "MediaCollection" AS ENUM ('CATEGORY', 'TRANSACTION');
+CREATE TYPE "EntityType" AS ENUM ('category', 'transaction');
 
 -- CreateEnum
 CREATE TYPE "TxType" AS ENUM ('CREDIT', 'DEBIT');
@@ -52,18 +49,13 @@ CREATE TABLE "otps" (
 CREATE TABLE "media" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
-    "model_id" INTEGER,
-    "model_type" "ModelType",
+    "entity_id" INTEGER,
+    "entity_type" "EntityType",
     "name" TEXT NOT NULL,
-    "key" TEXT NOT NULL,
     "path" TEXT NOT NULL,
-    "mime" TEXT NOT NULL,
-    "type" "MediaType" NOT NULL,
     "size" INTEGER NOT NULL,
-    "collection" "MediaCollection" NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "deleted_at" TIMESTAMP(3),
+    "mime" TEXT NOT NULL,
+    "uploaded_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "media_pkey" PRIMARY KEY ("id")
 );
@@ -121,7 +113,10 @@ CREATE TABLE "accounts" (
 CREATE TABLE "custom_category_icons" (
     "id" SERIAL NOT NULL,
     "icon_id" INTEGER NOT NULL,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_at" TIMESTAMP(3),
 
     CONSTRAINT "custom_category_icons_pkey" PRIMARY KEY ("id")
 );

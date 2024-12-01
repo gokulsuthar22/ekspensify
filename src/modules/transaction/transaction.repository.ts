@@ -1,14 +1,17 @@
 import { PrismaService } from 'infra/persistence/prisma/prisma.service';
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, Transaction } from '@prisma/client';
 import { AccountService } from '../account/account.service';
 import { AppHttpException } from 'core/exceptions/http.exception';
+import { PaginationService } from 'common/services/pagination.service';
+import { PaginationParams } from 'common/types/pagination.type';
 
 @Injectable()
 export class TransactionRepository {
   constructor(
     private prismaService: PrismaService,
     private accountService: AccountService,
+    private paginationService: PaginationService,
   ) {}
 
   private get Transaction() {
@@ -33,7 +36,11 @@ export class TransactionRepository {
     category: {
       select: {
         name: true,
-        icon: true,
+        icon: {
+          select: {
+            path: true,
+          },
+        },
       },
     },
     attachment: {
@@ -147,11 +154,11 @@ export class TransactionRepository {
     return transaction;
   }
 
-  async findMany(where?: Prisma.TransactionWhereInput) {
-    const transactions = await this.Transaction.findMany({
-      where,
-      select: this.select,
-    });
+  async findMany(where?: PaginationParams) {
+    const transactions = await this.paginationService.paginate<Transaction>(
+      this.Transaction,
+      { ...where, select: this.select },
+    );
     return transactions;
   }
 }

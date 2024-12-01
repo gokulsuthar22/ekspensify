@@ -11,6 +11,10 @@ export class CreateTransactionDto {
   @Type(() => Number)
   categoryId: number;
 
+  @Expose({ name: 'attachment_id' })
+  @Type(() => Number)
+  attachmentId: number;
+
   @Expose()
   @Type(() => Number)
   amount: number;

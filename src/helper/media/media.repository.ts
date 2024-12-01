@@ -16,28 +16,48 @@ export class MediaRepository {
     return this.prismaService.media;
   }
 
+  private select = {
+    id: true,
+    path: true,
+    entityId: true,
+    entityType: true,
+  };
+
   async create(data: CreateMediaData) {
-    const media = await this.Media.create({ data });
+    const media = await this.Media.create({
+      data,
+      select: this.select,
+    });
     return media;
   }
 
   async findById(id: number) {
-    const media = await this.Media.findUnique({ where: { id } });
+    const media = await this.Media.findUnique({
+      where: { id },
+      select: this.select,
+    });
     return media;
   }
 
   async findByIdAndUpdate(id: number, data: UpdateMediaData) {
-    const media = await this.Media.update({ where: { id }, data });
+    const media = await this.Media.update({
+      where: { id },
+      data,
+      select: this.select,
+    });
     return media;
   }
 
   async findByIdAndDelete(id: number) {
-    const media = await this.Media.delete({ where: { id } });
+    const media = await this.Media.delete({
+      where: { id },
+      select: this.select,
+    });
     return media;
   }
 
   async findOne(where: MediaWhere) {
-    const media = await this.Media.findFirst({ where });
+    const media = await this.Media.findFirst({ where, select: this.select });
     return media;
   }
 
@@ -45,17 +65,17 @@ export class MediaRepository {
     where: Prisma.MediaWhereUniqueInput,
     data: Prisma.MediaUpdateInput,
   ) {
-    const media = await this.Media.update({ where, data });
+    const media = await this.Media.update({ where, data, select: this.select });
     return media;
   }
 
   async findOneAndDelete(where: Prisma.MediaWhereUniqueInput) {
-    const media = await this.Media.delete({ where });
+    const media = await this.Media.delete({ where, select: this.select });
     return media;
   }
 
   async findMany(where?: FilterMediaWhere) {
-    const media = await this.Media.findMany({ where });
+    const media = await this.Media.findMany({ where, select: this.select });
     return media;
   }
 }

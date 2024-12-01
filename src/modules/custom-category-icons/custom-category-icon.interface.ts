@@ -2,14 +2,20 @@ export interface CreateCustomCategoryIconData {
   iconId: number;
 }
 
+export interface UpsertCustomCategoryIcon {
+  iconId: number;
+  isActive: boolean;
+}
+
 export interface CustomCategoryIconWhere {
-  id: number;
+  iconId: number;
+  isActive: boolean;
 }
 
 export interface UpdateCustomCategoryIconData {
-  iconId: number;
+  isActive?: boolean;
 }
 
 export interface FilterCustomCategoryIconWhere {
-  iconId: number;
+  isActive?: boolean;
 }

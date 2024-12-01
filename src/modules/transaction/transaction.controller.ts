@@ -10,7 +10,9 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { Roles } from 'core/decorators/roles.decorator';
@@ -22,6 +24,11 @@ import { RoleGuard } from 'core/guards/role.guard';
 import { CreateTransactionDto } from './dtos/create-transaction.dto';
 import { TransactionDto } from './dtos/transaction.dto';
 import { UpdateTransactionDto } from './dtos/update-transaction.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UploadAttachmentResponseDto } from './dtos/upload-attachment-response.dto';
+import { TransactionAttachmentValidationPipe } from './pipes/trasaction-attachment-validation.pipe';
+import { TransactionPaginatedResponseDto } from './dtos/transaction-paginatated-response.dto';
+import { TransactionPaginationParamsDto } from './dtos/transaction-pagination-params.dto';
 
 @Controller('transactions')
 @UseGuards(AuthGuard, RoleGuard)
@@ -37,6 +44,33 @@ export class TransactionController {
       ...data,
       userId: user.id,
     });
+  }
+
+  @Get()
+  @Roles(Role.USER, Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(TransactionPaginatedResponseDto)
+  findMany(
+    @CurrentUser() user: any,
+    @Query() where: TransactionPaginationParamsDto,
+  ) {
+    return this.transactionService.findMany({
+      ...where,
+      userId: user.role !== 'ADMIN' ? user.id : undefined,
+    });
+  }
+
+  @Post('upload-attachment')
+  @Roles(Role.USER)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(UploadAttachmentResponseDto)
+  @UseInterceptors(FileInterceptor('attachment'))
+  uploadIcons(
+    @UploadedFile(new TransactionAttachmentValidationPipe())
+    image: Express.Multer.File,
+    @CurrentUser() user: any,
+  ) {
+    return this.transactionService.uploadAttachment({ image, userId: user.id });
   }
 
   @Patch(':id')
@@ -57,16 +91,5 @@ export class TransactionController {
   @Serialize(TransactionDto)
   delete(@CurrentUser() user: any, @Param('id') id: ParseIntPipe) {
     return this.transactionService.delete({ id: +id, userId: user.id });
-  }
-
-  @Get()
-  @Roles(Role.USER, Role.ADMIN)
-  @HttpCode(HttpStatus.OK)
-  @Serialize(TransactionDto)
-  findMany(@CurrentUser() user: any, @Query() where: any) {
-    return this.transactionService.findMany({
-      ...where,
-      userId: user.role !== 'ADMIN' ? user.id : undefined,
-    });
   }
 }

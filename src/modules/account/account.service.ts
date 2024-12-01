@@ -42,6 +42,7 @@ export class AccountService {
           'Account already exist',
         );
       }
+      throw error;
     }
   }
 

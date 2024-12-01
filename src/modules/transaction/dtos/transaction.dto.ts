@@ -1,4 +1,4 @@
-import { Expose, Type } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 
 export class TransactionDto {
   @Expose()
@@ -8,10 +8,17 @@ export class TransactionDto {
   account: any;
 
   @Expose()
+  @Transform(({ obj }) => {
+    return {
+      name: obj?.category?.name,
+      icon: obj?.category?.icon?.path,
+    };
+  })
   category: any;
 
   @Expose()
-  attachment: any;
+  @Transform(({ obj }) => obj?.attachment?.path)
+  attachment: string;
 
   @Expose()
   @Type(() => Number)

@@ -1,6 +1,12 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  PutObjectCommand,
+  DeleteObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { UtilService } from 'common/services/util.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AwsS3Service {
@@ -11,7 +17,10 @@ export class AwsS3Service {
   private readonly accessKey = this.configService.get('s3').accessKey;
   private readonly secretKey = this.configService.get('s3').secretAccessKey;
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private utilService: UtilService,
+  ) {
     this.s3 = new S3Client({
       credentials: {
         accessKeyId: this.accessKey,
@@ -19,6 +28,16 @@ export class AwsS3Service {
       },
       region: this.region,
     });
+  }
+
+  public getObjectKey(name: string, ext: string, dir?: string) {
+    const hash = crypto
+      .createHash('md5')
+      .update(name)
+      .digest('hex')
+      .slice(0, 12);
+    const fileName = `${this.utilService.slugifyText(name)}-${hash}.${ext}`;
+    return dir ? `${dir}/${fileName}` : fileName;
   }
 
   public getObjectUrl(key: string) {
@@ -35,5 +54,15 @@ export class AwsS3Service {
       }),
     );
     return this.getObjectUrl(fileName);
+  }
+
+  public async remove(key: string) {
+    await this.s3.send(
+      new DeleteObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      }),
+    );
+    return this.getObjectUrl(key);
   }
 }

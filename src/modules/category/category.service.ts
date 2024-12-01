@@ -27,7 +27,7 @@ export class CategoryService {
         `Icon does not exist by id ${id}`,
       );
     }
-    if (icon.modelId) {
+    if (icon.entityId) {
       throw new AppHttpException(
         HttpStatus.BAD_REQUEST,
         'Icon belongs to another category',
@@ -40,8 +40,8 @@ export class CategoryService {
     const icon = await this.validateIcon(data.iconId);
     const category = await this.categoryRepo.create(data);
     await this.mediaRepo.findByIdAndUpdate(icon.id, {
-      modelId: category.id,
-      modelType: 'CATEGORY',
+      entityId: data.iconId,
+      entityType: 'category',
     });
     return category;
   }
@@ -53,8 +53,8 @@ export class CategoryService {
     if (data.iconId) {
       const icon = await this.validateIcon(data.iconId);
       await this.mediaRepo.findByIdAndUpdate(icon.id, {
-        modelId: where.id,
-        modelType: 'CATEGORY',
+        entityId: where.id,
+        entityType: 'category',
       });
     }
     const category = await this.categoryRepo.findOneAndUpdate(where, data);
@@ -84,20 +84,21 @@ export class CategoryService {
   }
 
   async uploadIcon(data: UploadIconData) {
-    const key = `categories/${data.icon.originalname}_${Date.now()}.png`;
-    const path = this.awsS3Service.getObjectUrl(key);
+    const name = this.awsS3Service.getObjectKey(
+      data.icon.originalname,
+      'png',
+      'categories',
+    );
+    const path = this.awsS3Service.getObjectUrl(name);
     const [icon] = await Promise.all([
       this.mediaRepo.create({
-        collection: 'CATEGORY',
         name: data.icon.originalname,
-        key: key,
-        mime: data.icon.mimetype,
         path: path,
         size: data.icon.size,
-        type: 'IMAGE',
+        mime: data.icon.mimetype,
         userId: data.userId,
       }),
-      this.awsS3Service.upload(data.icon.buffer, key, data.icon.mimetype),
+      this.awsS3Service.upload(data.icon.buffer, name, data.icon.mimetype),
     ]);
     return icon;
   }

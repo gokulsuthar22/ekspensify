@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -15,8 +16,11 @@ import { RoleGuard } from 'core/guards/role.guard';
 import { Roles } from 'core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { Serialize } from 'core/interceptors/serialize.interceptor';
+import { CustomCategoryIconDto } from './dtos/custom-category-icon.dto';
 import { CreateCustomCategoryIconDto } from './dtos/create-custom-category-icon.dto';
-import { MediaDto } from 'helper/media/dtos/media.dto';
+import { UpdateCustomCategoryIconDto } from './dtos/update-custom-category-icon.dto';
+import { ExtentedParseIntPipe } from 'core/pipes/extended-parse-int.pipe';
+import { CurrentUser } from 'core/decorators/current-user.decorator';
 
 @Controller('categories/custom-icons')
 @UseGuards(AuthGuard, RoleGuard)
@@ -26,23 +30,37 @@ export class CustomCategoryIconController {
   @Get()
   @Roles(Role.ADMIN, Role.USER)
   @HttpCode(HttpStatus.OK)
-  @Serialize(MediaDto)
-  async findMany() {
-    const categoryIcons = await this.customIconService.findMany();
-    return categoryIcons.map((c) => c.icon);
+  @Serialize(CustomCategoryIconDto)
+  findMany(@CurrentUser() user: any) {
+    return this.customIconService.findMany({
+      isActive: user.role !== 'ADMIN' ? true : undefined,
+    });
   }
 
   @Post()
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
-  async create(@Body() data: CreateCustomCategoryIconDto) {
-    await this.customIconService.create(data);
+  @Serialize(CustomCategoryIconDto)
+  create(@Body() data: CreateCustomCategoryIconDto) {
+    return this.customIconService.create(data);
+  }
+
+  @Patch(':id')
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(CustomCategoryIconDto)
+  update(
+    @Param('id', ExtentedParseIntPipe) id: number,
+    @Body() data: UpdateCustomCategoryIconDto,
+  ) {
+    return this.customIconService.update(id, data);
   }
 
   @Delete(':id')
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
-  async delete(@Param('id') id: number) {
-    await this.customIconService.delete(id);
+  @Serialize(CustomCategoryIconDto)
+  delete(@Param('id', ExtentedParseIntPipe) id: number) {
+    return this.customIconService.delete(id);
   }
 }

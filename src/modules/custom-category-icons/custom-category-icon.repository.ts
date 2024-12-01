@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CustomCategoryIcon } from '@prisma/client';
-import { Repository } from 'common/types/repository.interface';
 import {
   CreateCustomCategoryIconData,
   CustomCategoryIconWhere,
@@ -10,29 +8,28 @@ import {
 import { PrismaService } from 'infra/persistence/prisma/prisma.service';
 
 @Injectable()
-export class CustomCategoryIconRepository
-  implements
-    Repository<
-      CustomCategoryIcon,
-      CreateCustomCategoryIconData,
-      UpdateCustomCategoryIconData,
-      CustomCategoryIconWhere
-    >
-{
+export class CustomCategoryIconRepository {
   constructor(private prismaService: PrismaService) {}
 
   private get CustomCategoryIcon() {
     return this.prismaService.customCategoryIcon;
   }
 
-  private include = {
-    icon: true,
+  private select = {
+    id: true,
+    iconId: true,
+    isActive: true,
+    icon: {
+      select: {
+        path: true,
+      },
+    },
   };
 
   async create(data: CreateCustomCategoryIconData) {
     const categoryIcon = await this.CustomCategoryIcon.create({
       data,
-      include: this.include,
+      select: this.select,
     });
     return categoryIcon;
   }
@@ -40,7 +37,7 @@ export class CustomCategoryIconRepository
   async findById(id: number) {
     const categoryIcon = await this.CustomCategoryIcon.findUnique({
       where: { id },
-      include: this.include,
+      select: this.select,
     });
     return categoryIcon;
   }
@@ -49,7 +46,7 @@ export class CustomCategoryIconRepository
     const categoryIcon = await this.CustomCategoryIcon.update({
       where: { id },
       data,
-      include: this.include,
+      select: this.select,
     });
     return categoryIcon;
   }
@@ -57,7 +54,7 @@ export class CustomCategoryIconRepository
   async findByIdAndDelete(id: number) {
     const category = await this.CustomCategoryIcon.delete({
       where: { id },
-      include: this.include,
+      select: this.select,
     });
     return category;
   }
@@ -65,27 +62,7 @@ export class CustomCategoryIconRepository
   async findOne(where: CustomCategoryIconWhere) {
     const category = await this.CustomCategoryIcon.findFirst({
       where,
-      include: this.include,
-    });
-    return category;
-  }
-
-  async findOneAndUpdate(
-    where: CustomCategoryIconWhere,
-    data?: UpdateCustomCategoryIconData,
-  ) {
-    const category = await this.CustomCategoryIcon.update({
-      where,
-      data,
-      include: this.include,
-    });
-    return category;
-  }
-
-  async findOneAndDelete(where: CustomCategoryIconWhere) {
-    const category = await this.CustomCategoryIcon.delete({
-      where,
-      include: this.include,
+      select: this.select,
     });
     return category;
   }
@@ -94,7 +71,7 @@ export class CustomCategoryIconRepository
     const categoryIcons = await this.CustomCategoryIcon.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      include: this.include,
+      select: this.select,
     });
     return categoryIcons;
   }

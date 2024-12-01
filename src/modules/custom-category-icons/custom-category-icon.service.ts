@@ -3,6 +3,7 @@ import { CustomCategoryIconRepository } from './custom-category-icon.repository'
 import {
   CreateCustomCategoryIconData,
   FilterCustomCategoryIconWhere,
+  UpdateCustomCategoryIconData,
 } from './custom-category-icon.interface';
 import { MediaRepository } from 'helper/media/media.repository';
 import { AppHttpException } from 'core/exceptions/http.exception';
@@ -14,24 +15,52 @@ export class CustomCategoryIconService {
     private customCategoryIconRepo: CustomCategoryIconRepository,
   ) {}
 
-  async create(data: CreateCustomCategoryIconData) {
-    const icon = await this.mediaRepo.findById(data.iconId);
+  private async validateIcon(id: number) {
+    const icon = await this.mediaRepo.findById(id);
     if (!icon) {
-      throw new AppHttpException(HttpStatus.NOT_FOUND, 'icon not found');
-    }
-    if (icon.modelId) {
       throw new AppHttpException(
-        HttpStatus.BAD_REQUEST,
-        'icon is already attched to other category',
+        HttpStatus.NOT_FOUND,
+        `Icon does not exist by id ${id}`,
       );
     }
+    if (icon.entityId) {
+      throw new AppHttpException(
+        HttpStatus.BAD_REQUEST,
+        'Icon belongs to another category',
+      );
+    }
+    return icon;
+  }
+
+  async create(data: CreateCustomCategoryIconData) {
+    await this.validateIcon(data.iconId);
     const categoryIcon = await this.customCategoryIconRepo.create(data);
+    return categoryIcon;
+  }
+
+  async update(id: number, data: UpdateCustomCategoryIconData) {
+    const categoryIcon = await this.customCategoryIconRepo.findByIdAndUpdate(
+      id,
+      data,
+    );
+    if (!categoryIcon) {
+      throw new AppHttpException(
+        HttpStatus.NOT_FOUND,
+        'Custom category icon not found',
+      );
+    }
     return categoryIcon;
   }
 
   async delete(id: number) {
     const categoryIcon =
       await this.customCategoryIconRepo.findByIdAndDelete(id);
+    if (!categoryIcon) {
+      throw new AppHttpException(
+        HttpStatus.NOT_FOUND,
+        'Custom category icon not found',
+      );
+    }
     return categoryIcon;
   }
 

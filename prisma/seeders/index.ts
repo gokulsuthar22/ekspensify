@@ -7,8 +7,30 @@ import { users } from './data/users';
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.user.createMany({ data: users as any });
-  await prisma.media.createMany({ data: media as any });
+  await Promise.all(
+    users.map((user) =>
+      prisma.user.create({
+        data: {
+          ...user,
+          media:
+            user.role === 'ADMIN'
+              ? {
+                  createMany: {
+                    data: [
+                      ...media.map((m) => {
+                        delete m.id;
+                        delete m.userId;
+                        return m;
+                      }),
+                    ] as any,
+                  },
+                }
+              : undefined,
+        } as any,
+      }),
+    ),
+  );
+
   await Promise.all([
     prisma.category.createMany({ data: categories as any }),
     prisma.customCategoryIcon.createMany({ data: customCategoryIcons as any }),

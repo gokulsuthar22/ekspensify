@@ -1,6 +1,12 @@
 import { utc } from 'moment';
 
-const softDeleteModels = ['User', 'Category', 'Account', 'Transaction'];
+const softDeleteModels = [
+  'User',
+  'Category',
+  'Account',
+  'Transaction',
+  'CustomCategoryIcon',
+];
 
 export const applySoftDeleteMiddleware = async (params: any, next: any) => {
   if (params.action === 'delete' || params.action === 'deleteMany') {

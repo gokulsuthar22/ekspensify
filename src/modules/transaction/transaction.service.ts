@@ -2,41 +2,63 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { TransactionRepository } from './transaction.repository';
 import {
   CreateTransactionData,
-  FilterTransactionWhere,
   TransactionWhere,
   UpdateTransactionData,
+  UploadAttachmentData,
 } from './transaction.interface';
 import { MediaRepository } from 'helper/media/media.repository';
 import { AppHttpException } from 'core/exceptions/http.exception';
+import { AwsS3Service } from 'helper/media/services/aws-s3.service';
+import { PaginationParams } from 'common/types/pagination.type';
 
 @Injectable()
 export class TransactionService {
   constructor(
     private transactionRepo: TransactionRepository,
-    private mediaRepository: MediaRepository,
+    private mediaRepo: MediaRepository,
+    private awsS3Service: AwsS3Service,
   ) {}
 
-  async create(data: CreateTransactionData) {
-    const sample = {
-      small: 'http://budget-buddy.s3/attachment-150x150.jpeg',
-      medium: 'http://budget-buddy.s3/attachment-500x500.jpeg',
-      large: 'http://budget-buddy.s3/attachment-720x720.jpeg',
-    };
-
-    const attachment = await this.mediaRepository.create({
-      name: 'attachment',
-      path: sample.large,
-      ...sample,
-      type: 'IMAGE',
-    } as any);
-
-    return this.transactionRepo.create({
-      ...data,
-      attachmentId: attachment.id,
+  private async validateAttachment(id: number) {
+    const attachment = await this.mediaRepo.findOne({
+      id,
     });
+    if (!attachment) {
+      throw new AppHttpException(
+        HttpStatus.NOT_FOUND,
+        `Attachment does not exist by id ${id}`,
+      );
+    }
+    if (attachment.entityId) {
+      throw new AppHttpException(
+        HttpStatus.BAD_REQUEST,
+        'Attachment belongs to another transaction',
+      );
+    }
+    return attachment;
+  }
+
+  async create(data: CreateTransactionData) {
+    const attachment = await this.validateAttachment(data.attachmentId);
+    const transaction = await this.transactionRepo.create(data);
+    await this.mediaRepo.findByIdAndUpdate(attachment.id, {
+      entityId: data.attachmentId,
+      entityType: 'transaction',
+    });
+    return transaction;
   }
 
   async update(where: TransactionWhere, data: UpdateTransactionData) {
+    if (!data.attachmentId) {
+      delete data?.attachmentId;
+    }
+    if (data.attachmentId) {
+      const attachment = await this.validateAttachment(data.attachmentId);
+      await this.mediaRepo.findByIdAndUpdate(attachment.id, {
+        entityId: where.id,
+        entityType: 'transaction',
+      });
+    }
     const Transaction = await this.transactionRepo.findOneAndUpdate(
       where,
       data,
@@ -55,8 +77,28 @@ export class TransactionService {
     return Transaction;
   }
 
-  async findMany(where?: FilterTransactionWhere) {
+  async findMany(where?: PaginationParams) {
     const transactions = await this.transactionRepo.findMany(where);
     return transactions;
+  }
+
+  async uploadAttachment(data: UploadAttachmentData) {
+    const name = this.awsS3Service.getObjectKey(
+      data.image.originalname,
+      'png',
+      'transactions',
+    );
+    const path = this.awsS3Service.getObjectUrl(name);
+    const [attachment] = await Promise.all([
+      this.mediaRepo.create({
+        name: data.image.originalname,
+        path: path,
+        size: data.image.size,
+        mime: data.image.mimetype,
+        userId: data.userId,
+      }),
+      this.awsS3Service.upload(data.image.buffer, name, data.image.mimetype),
+    ]);
+    return attachment;
   }
 }
