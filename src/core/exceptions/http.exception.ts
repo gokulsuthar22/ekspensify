@@ -62,6 +62,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
       );
     }
 
+    this.logger.error(
+      'Handled exception',
+      exception instanceof Error ? exception.stack : String(exception),
+    );
+
     // Send structured error response
     response.status(error.status).json({ error });
   }

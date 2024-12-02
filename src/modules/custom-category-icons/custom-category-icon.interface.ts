@@ -8,8 +8,8 @@ export interface UpsertCustomCategoryIcon {
 }
 
 export interface CustomCategoryIconWhere {
-  iconId: number;
-  isActive: boolean;
+  iconId?: number;
+  isActive?: boolean;
 }
 
 export interface UpdateCustomCategoryIconData {

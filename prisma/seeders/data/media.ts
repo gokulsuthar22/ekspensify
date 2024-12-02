@@ -225,7 +225,7 @@ export const media = [
     entityId: 23,
     entityType: 'category',
     name: 'ic_water.png',
-    path: 'https://budget-buddy-s3-bucket.s3.ap-south-1.amazonaws.com/categories/ic_water.png_1732937267828.png',
+    path: 'https://budget-buddy-s3-bucket.s3.ap-south-1.amazonaws.com/categories/ic_water.png_1732937266400.png',
     mime: 'image/png',
     size: 1843,
   },

@@ -4,9 +4,9 @@ export interface CreateTransactionData {
   userId: number;
   accountId: number;
   categoryId: number;
-  attachmentId: number;
+  attachmentId?: number;
   amount: number;
-  note: string;
+  note?: string;
   type: TxType;
 }
 

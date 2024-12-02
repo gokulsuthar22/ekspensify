@@ -10,12 +10,14 @@ import {
 import { AppHttpException } from 'core/exceptions/http.exception';
 import { MediaRepository } from 'helper/media/media.repository';
 import { AwsS3Service } from 'helper/media/services/aws-s3.service';
+import { CustomCategoryIconRepository } from 'modules/custom-category-icons/custom-category-icon.repository';
 
 @Injectable()
 export class CategoryService {
   constructor(
     private categoryRepo: CategoryRepository,
     private mediaRepo: MediaRepository,
+    private customCategoryIconRepo: CustomCategoryIconRepository,
     private awsS3Service: AwsS3Service,
   ) {}
 
@@ -24,7 +26,8 @@ export class CategoryService {
     if (!icon) {
       throw new AppHttpException(
         HttpStatus.NOT_FOUND,
-        `Icon does not exist by id ${id}`,
+        `Icon not found`,
+        'ICON_NOT_FOUND',
       );
     }
     if (icon.entityId) {
@@ -36,13 +39,31 @@ export class CategoryService {
     return icon;
   }
 
+  private async isCustomIcon(id: number) {
+    const isCustomIcon = await this.customCategoryIconRepo.findOne({
+      iconId: id,
+      isActive: true,
+    });
+    if (!isCustomIcon) {
+      throw new AppHttpException(
+        HttpStatus.NOT_FOUND,
+        `Custom Icon not found`,
+        'CUSTOM_CATEGORY_ICON_NOT_FOUND',
+      );
+    }
+    return isCustomIcon ? true : false;
+  }
+
   async create(data: CreateCategoryData) {
     const icon = await this.validateIcon(data.iconId);
     const category = await this.categoryRepo.create(data);
-    await this.mediaRepo.findByIdAndUpdate(icon.id, {
-      entityId: data.iconId,
-      entityType: 'category',
-    });
+    const isCustomIcon = await this.isCustomIcon(icon.id);
+    if (!isCustomIcon) {
+      await this.mediaRepo.findByIdAndUpdate(icon.id, {
+        entityId: data.iconId,
+        entityType: 'category',
+      });
+    }
     return category;
   }
 
@@ -52,10 +73,13 @@ export class CategoryService {
     }
     if (data.iconId) {
       const icon = await this.validateIcon(data.iconId);
-      await this.mediaRepo.findByIdAndUpdate(icon.id, {
-        entityId: where.id,
-        entityType: 'category',
-      });
+      const isCustomIcon = await this.isCustomIcon(icon.id);
+      if (!isCustomIcon) {
+        await this.mediaRepo.findByIdAndUpdate(icon.id, {
+          entityId: where.id,
+          entityType: 'category',
+        });
+      }
     }
     const category = await this.categoryRepo.findOneAndUpdate(where, data);
     if (!category) {

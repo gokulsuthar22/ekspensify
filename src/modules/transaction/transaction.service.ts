@@ -39,12 +39,17 @@ export class TransactionService {
   }
 
   async create(data: CreateTransactionData) {
-    const attachment = await this.validateAttachment(data.attachmentId);
+    if (data.attachmentId) {
+      await this.validateAttachment(data.attachmentId);
+    }
     const transaction = await this.transactionRepo.create(data);
-    await this.mediaRepo.findByIdAndUpdate(attachment.id, {
-      entityId: data.attachmentId,
-      entityType: 'transaction',
-    });
+    if (data.attachmentId) {
+      await this.mediaRepo.findByIdAndUpdate(data.attachmentId, {
+        entityId: data.attachmentId,
+        entityType: 'transaction',
+      });
+    }
+
     return transaction;
   }
 

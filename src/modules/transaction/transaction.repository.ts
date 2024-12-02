@@ -54,17 +54,23 @@ export class TransactionRepository {
     try {
       const tx = await this.prismaService.$transaction(async (ctx) => {
         const tx = await ctx.transaction.create({ data, select: this.select });
-        const wallet = await this.accountService[data.type.toLowerCase()](
+        await this.accountService[data.type.toLowerCase()](
           data.accountId,
           data.amount,
           ctx,
         );
-        if (wallet.balance < 0) {
-          throw new AppHttpException(
-            HttpStatus.BAD_REQUEST,
-            'Insufficient balance',
-          );
-        }
+        // To not allow balance to be in negative
+        // const wallet = await this.accountService[data.type.toLowerCase()](
+        //   data.accountId,
+        //   data.amount,
+        //   ctx,
+        // );
+        // if (wallet.balance < 0) {
+        //   throw new AppHttpException(
+        //     HttpStatus.BAD_REQUEST,
+        //     'Insufficient balance',
+        //   );
+        // }
         return tx;
       });
       return tx;
