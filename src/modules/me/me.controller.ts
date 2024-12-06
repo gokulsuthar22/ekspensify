@@ -8,14 +8,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
-import { CurrentUser } from 'core/decorators/current-user.decorator';
-import { Roles } from 'core/decorators/roles.decorator';
-import { AuthGuard } from 'core/guards/auth.guard';
-import { RoleGuard } from 'core/guards/role.guard';
-import { Serialize } from 'core/interceptors/serialize.interceptor';
-import { UpdateMeUserDto } from 'shared/user/dtos/update-me-user.dto';
-import { UserDto } from 'shared/user/dtos/user.dto';
-import { UserService } from 'shared/user/user.service';
+import { CurrentUser } from '@/core/decorators/current-user.decorator';
+import { Roles } from '@/core/decorators/roles.decorator';
+import { AuthGuard } from '@/core/guards/auth.guard';
+import { RoleGuard } from '@/core/guards/role.guard';
+import { Serialize } from '@/core/interceptors/serialize.interceptor';
+import { UpdateMeUserDto } from '@/shared/user/dtos/update-me-user.dto';
+import { UserDto } from '@/shared/user/dtos/user.dto';
+import { UserService } from '@/shared/user/user.service';
 
 @Controller('users/me')
 @UseGuards(AuthGuard, RoleGuard)

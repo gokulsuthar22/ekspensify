@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UtilService } from 'common/services/util.service';
+import { UtilService } from '@/common/services/util.service';
 import * as crypto from 'crypto';
 
 @Injectable()

@@ -8,23 +8,21 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CategoryDto } from './dtos/category.dto';
-import { Serialize } from 'core/interceptors/serialize.interceptor';
+import { Serialize } from '@/core/interceptors/serialize.interceptor';
 import { CreateCategoryDto } from './dtos/create-category.dto';
-import { AuthGuard } from 'core/guards/auth.guard';
-import { RoleGuard } from 'core/guards/role.guard';
-import { Roles } from 'core/decorators/roles.decorator';
+import { AuthGuard } from '@/core/guards/auth.guard';
+import { RoleGuard } from '@/core/guards/role.guard';
+import { Roles } from '@/core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { CurrentUser } from 'core/decorators/current-user.decorator';
+import { CurrentUser } from '@/core/decorators/current-user.decorator';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
-import { FilterCategoryDto } from './dtos/filter-category.dto';
-import { ExtentedParseIntPipe } from 'core/pipes/extended-parse-int.pipe';
+import { ParseIntPipe } from '@/core/pipes/parse-int.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CategoryIconValidationPipe } from './pipes/category-icon-validation.pipe';
 import { UploadIconResponseDto } from './dtos/upload-icon-response.dto';
@@ -49,9 +47,8 @@ export class CategoryController {
   @Roles(Role.ADMIN, Role.USER)
   @HttpCode(HttpStatus.OK)
   @Serialize(CategoryDto)
-  findMany(@CurrentUser() user: any, @Query() where: FilterCategoryDto) {
+  findMany(@CurrentUser() user: any) {
     return this.categoryService.findMany({
-      ...where,
       OR:
         user.role !== 'ADMIN'
           ? [
@@ -80,7 +77,7 @@ export class CategoryController {
   @Serialize(CategoryDto)
   update(
     @CurrentUser() user: any,
-    @Param('id', ExtentedParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateCategoryDto,
   ) {
     return this.categoryService.update(
@@ -96,10 +93,7 @@ export class CategoryController {
   @Roles(Role.ADMIN, Role.USER)
   @HttpCode(HttpStatus.OK)
   @Serialize(CategoryDto)
-  delete(
-    @CurrentUser() user: any,
-    @Param('id', ExtentedParseIntPipe) id: number,
-  ) {
+  delete(@CurrentUser() user: any, @Param('id', ParseIntPipe) id: number) {
     return this.categoryService.delete({
       id: +id,
       userId: user.role !== 'ADMIN' ? user.id : null,

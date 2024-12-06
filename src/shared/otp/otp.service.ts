@@ -2,8 +2,8 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { OtpRepository } from './otp.repository';
 import { utc } from 'moment';
 import { UserRepository } from '../user/user.repository';
-import { MailService } from 'helper/mail/mail.service';
-import { AppHttpException } from 'core/exceptions/http.exception';
+import { MailService } from '@/helper/mail/mail.service';
+import { AppHttpException } from '@/core/exceptions/app-http.exception';
 
 @Injectable()
 export class OtpService {

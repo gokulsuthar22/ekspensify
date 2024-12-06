@@ -1,8 +1,8 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { Prisma } from '@prisma/client';
-import { PaginationParams } from 'common/types/pagination.type';
-import { AppHttpException } from 'core/exceptions/http.exception';
+import { PaginationParams } from '@/common/types/pagination.type';
+import { AppHttpException } from '@/core/exceptions/app-http.exception';
 
 @Injectable()
 export class UserService {

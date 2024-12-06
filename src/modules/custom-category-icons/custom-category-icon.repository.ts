@@ -5,7 +5,7 @@ import {
   FilterCustomCategoryIconWhere,
   UpdateCustomCategoryIconData,
 } from './custom-category-icon.interface';
-import { PrismaService } from 'infra/persistence/prisma/prisma.service';
+import { PrismaService } from '@/infra/persistence/prisma/prisma.service';
 
 @Injectable()
 export class CustomCategoryIconRepository {

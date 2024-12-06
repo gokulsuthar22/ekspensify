@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { OtpService } from 'shared/otp/otp.service';
 import { UserRepository } from 'shared/user/user.repository';
 import { SignIn, SignUp } from './auth.interface';
-import { AppHttpException } from 'core/exceptions/http.exception';
+import { AppHttpException } from '@/core/exceptions/app-http.exception';
 
 @Injectable()
 export class AuthService {

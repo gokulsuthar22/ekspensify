@@ -1,7 +1,7 @@
-import { PrismaService } from 'infra/persistence/prisma/prisma.service';
+import { PrismaService } from '@/infra/persistence/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { UtilService } from 'common/services/util.service';
+import { UtilService } from '@/common/services/util.service';
 
 @Injectable()
 export class OtpRepository {

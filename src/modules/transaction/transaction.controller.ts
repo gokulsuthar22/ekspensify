@@ -15,12 +15,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
-import { Roles } from 'core/decorators/roles.decorator';
+import { Roles } from '@/core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { Serialize } from 'core/interceptors/serialize.interceptor';
-import { CurrentUser } from 'core/decorators/current-user.decorator';
-import { AuthGuard } from 'core/guards/auth.guard';
-import { RoleGuard } from 'core/guards/role.guard';
+import { Serialize } from '@/core/interceptors/serialize.interceptor';
+import { CurrentUser } from '@/core/decorators/current-user.decorator';
+import { AuthGuard } from '@/core/guards/auth.guard';
+import { RoleGuard } from '@/core/guards/role.guard';
 import { CreateTransactionDto } from './dtos/create-transaction.dto';
 import { TransactionDto } from './dtos/transaction.dto';
 import { UpdateTransactionDto } from './dtos/update-transaction.dto';
@@ -79,17 +79,17 @@ export class TransactionController {
   @Serialize(TransactionDto)
   update(
     @CurrentUser() user: any,
-    @Param('id') id: ParseIntPipe,
+    @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateTransactionDto,
   ) {
-    return this.transactionService.update({ id: +id, userId: user.id }, data);
+    return this.transactionService.update({ id, userId: user.id }, data);
   }
 
   @Delete(':id')
   @Roles(Role.USER)
   @HttpCode(HttpStatus.OK)
   @Serialize(TransactionDto)
-  delete(@CurrentUser() user: any, @Param('id') id: ParseIntPipe) {
-    return this.transactionService.delete({ id: +id, userId: user.id });
+  delete(@CurrentUser() user: any, @Param('id', ParseIntPipe) id: number) {
+    return this.transactionService.delete({ id, userId: user.id });
   }
 }

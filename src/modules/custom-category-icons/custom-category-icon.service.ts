@@ -5,8 +5,8 @@ import {
   FilterCustomCategoryIconWhere,
   UpdateCustomCategoryIconData,
 } from './custom-category-icon.interface';
-import { MediaRepository } from 'helper/media/media.repository';
-import { AppHttpException } from 'core/exceptions/http.exception';
+import { MediaRepository } from '@/helper/media/media.repository';
+import { AppHttpException } from '@/core/exceptions/app-http.exception';
 
 @Injectable()
 export class CustomCategoryIconService {

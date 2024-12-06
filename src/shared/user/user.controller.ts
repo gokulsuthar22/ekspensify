@@ -5,16 +5,17 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { AuthGuard } from 'core/guards/auth.guard';
-import { RoleGuard } from 'core/guards/role.guard';
-import { Roles } from 'core/decorators/roles.decorator';
+import { AuthGuard } from '@/core/guards/auth.guard';
+import { RoleGuard } from '@/core/guards/role.guard';
+import { Roles } from '@/core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { Serialize } from 'core/interceptors/serialize.interceptor';
+import { Serialize } from '@/core/interceptors/serialize.interceptor';
 import { UserPaginatedResponseDto } from './dtos/user-paginatated-response.dto';
 import { UserDto } from './dtos/user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
@@ -37,7 +38,7 @@ export class UserController {
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Serialize(UserDto)
-  findById(@Param('id') id: number) {
+  findById(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findById(id);
   }
 
@@ -45,7 +46,10 @@ export class UserController {
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Serialize(UserDto)
-  updateById(@Param('id') id: number, @Body() data: UpdateUserDto) {
+  updateById(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateUserDto,
+  ) {
     return this.userService.updateById(id, data);
   }
 }

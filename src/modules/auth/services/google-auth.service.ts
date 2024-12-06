@@ -4,7 +4,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { GoogleSignIn, GoogleSignUp } from '../auth.interface';
 import { UserRepository } from 'shared/user/user.repository';
 import { JwtService } from '@nestjs/jwt';
-import { AppHttpException } from 'core/exceptions/http.exception';
+import { AppHttpException } from '@/core/exceptions/app-http.exception';
 
 @Injectable()
 export class GoogleAuthService {

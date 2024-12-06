@@ -39,7 +39,7 @@ export const handleUpdateDeleteGracefullyMiddleware = async (
   if (params.action === 'update' || params.action === 'delete') {
     try {
       return await next(params);
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === 'P2025') {
         return null;
       }

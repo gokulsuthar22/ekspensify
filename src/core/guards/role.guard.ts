@@ -7,8 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Role } from '@prisma/client';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-import { AppHttpException } from 'core/exceptions/http.exception';
-import { HttpReason } from 'core/exceptions/http.reasons';
+import { AppHttpException } from '@/core/exceptions/app-http.exception';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
@@ -27,11 +26,7 @@ export class RoleGuard implements CanActivate {
     const { user } = context.switchToHttp().getRequest();
 
     if (!user || !requiredRoles.includes(user.role)) {
-      throw new AppHttpException(
-        HttpStatus.FORBIDDEN,
-        'Permission denied',
-        HttpReason.FORBIDDEN,
-      );
+      throw new AppHttpException(HttpStatus.FORBIDDEN, 'Permission denied');
     }
 
     return true;

@@ -1,5 +1,5 @@
 import { PipeTransform, Injectable, HttpStatus } from '@nestjs/common';
-import { AppHttpException } from 'core/exceptions/http.exception';
+import { AppHttpException } from '@/core/exceptions/app-http.exception';
 import * as sharp from 'sharp';
 
 @Injectable()

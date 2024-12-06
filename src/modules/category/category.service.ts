@@ -7,10 +7,10 @@ import {
   CategoryWhere,
   UploadIconData,
 } from './category.interface';
-import { AppHttpException } from 'core/exceptions/http.exception';
-import { MediaRepository } from 'helper/media/media.repository';
-import { AwsS3Service } from 'helper/media/services/aws-s3.service';
-import { CustomCategoryIconRepository } from 'modules/custom-category-icons/custom-category-icon.repository';
+import { AppHttpException } from '@/core/exceptions/app-http.exception';
+import { MediaRepository } from '@/helper/media/media.repository';
+import { AwsS3Service } from '@/helper/media/services/aws-s3.service';
+import { CustomCategoryIconRepository } from '@/modules/custom-category-icons/custom-category-icon.repository';
 
 @Injectable()
 export class CategoryService {

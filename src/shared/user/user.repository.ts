@@ -1,9 +1,9 @@
-import { PrismaService } from 'infra/persistence/prisma/prisma.service';
+import { PrismaService } from '@/infra/persistence/prisma/prisma.service';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
-import { PaginationService } from 'common/services/pagination.service';
-import { PaginationParams } from 'common/types/pagination.type';
-import { AppHttpException } from 'core/exceptions/http.exception';
+import { PaginationService } from '@/common/services/pagination.service';
+import { PaginationParams } from '@/common/types/pagination.type';
+import { AppHttpException } from '@/core/exceptions/app-http.exception';
 
 @Injectable()
 export class UserRepository {

@@ -6,10 +6,9 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
-import { AppHttpException } from 'core/exceptions/http.exception';
-import { HttpReason } from 'core/exceptions/http.reasons';
+import { AppHttpException } from '@/core/exceptions/app-http.exception';
 import { Request } from 'express';
-import { UserRepository } from 'shared/user/user.repository';
+import { UserRepository } from '@/shared/user/user.repository';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -24,11 +23,7 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new AppHttpException(
-        HttpStatus.UNAUTHORIZED,
-        'No token provided',
-        HttpReason.UNAUTHORIZED,
-      );
+      throw new AppHttpException(HttpStatus.UNAUTHORIZED, 'No token provided');
     }
 
     try {
@@ -42,7 +37,6 @@ export class AuthGuard implements CanActivate {
         throw new AppHttpException(
           HttpStatus.UNAUTHORIZED,
           'Invalid token or expired',
-          HttpReason.UNAUTHORIZED,
         );
       }
 
@@ -55,7 +49,6 @@ export class AuthGuard implements CanActivate {
         throw new AppHttpException(
           HttpStatus.UNAUTHORIZED,
           'Invalid token or expired',
-          HttpReason.UNAUTHORIZED,
         );
       }
 

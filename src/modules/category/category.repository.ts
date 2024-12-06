@@ -1,6 +1,6 @@
-import { PrismaService } from 'infra/persistence/prisma/prisma.service';
+import { PrismaService } from '@/infra/persistence/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { UtilService } from 'common/services/util.service';
+import { UtilService } from '@/common/services/util.service';
 import {
   CategoryWhere,
   CreateCategoryData,
@@ -8,7 +8,7 @@ import {
   GenerateCategorySlug,
   UpdateCategoryData,
 } from './category.interface';
-import { Repository } from 'common/types/repository.interface';
+import { Repository } from '@/common/types/repository.interface';
 import { Category } from '@prisma/client';
 
 @Injectable()

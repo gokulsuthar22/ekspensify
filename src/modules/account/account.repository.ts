@@ -1,6 +1,6 @@
-import { PrismaService } from 'infra/persistence/prisma/prisma.service';
+import { PrismaService } from '@/infra/persistence/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { UtilService } from 'common/services/util.service';
+import { UtilService } from '@/common/services/util.service';
 import {
   AccountWhere,
   CreateAccountData,
@@ -9,7 +9,7 @@ import {
   UpdateAccountData,
 } from './account.interface';
 import { Account, Prisma } from '@prisma/client';
-import { Repository } from 'common/types/repository.interface';
+import { Repository } from '@/common/types/repository.interface';
 
 @Injectable()
 export class AccountRepository

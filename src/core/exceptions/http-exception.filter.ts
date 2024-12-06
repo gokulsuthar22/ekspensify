@@ -5,22 +5,10 @@ import {
   HttpStatus,
   Logger,
   NotFoundException,
-  HttpException,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { HttpReason } from './http.reasons';
-
-export interface AppHttpError {
-  status: HttpStatus;
-  message: string;
-  reason?: string;
-}
-
-export class AppHttpException extends HttpException {
-  constructor(status: HttpStatus, message: string, reason?: string) {
-    super({ message, reason, status }, status);
-  }
-}
+import { AppHttpException } from './app-http.exception';
+import { AppHttpError } from '@/common/types/error.interface';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -33,7 +21,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     // Default error structure
     const error: AppHttpError = {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
-      reason: HttpReason.INTERNAL_SERVER_ERROR,
       message: 'Something went wrong',
     };
 

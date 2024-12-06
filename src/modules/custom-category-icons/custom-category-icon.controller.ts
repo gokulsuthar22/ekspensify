@@ -11,16 +11,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CustomCategoryIconService } from './custom-category-icon.service';
-import { AuthGuard } from 'core/guards/auth.guard';
-import { RoleGuard } from 'core/guards/role.guard';
-import { Roles } from 'core/decorators/roles.decorator';
+import { AuthGuard } from '@/core/guards/auth.guard';
+import { RoleGuard } from '@/core/guards/role.guard';
+import { Roles } from '@/core/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { Serialize } from 'core/interceptors/serialize.interceptor';
+import { Serialize } from '@/core/interceptors/serialize.interceptor';
 import { CustomCategoryIconDto } from './dtos/custom-category-icon.dto';
 import { CreateCustomCategoryIconDto } from './dtos/create-custom-category-icon.dto';
 import { UpdateCustomCategoryIconDto } from './dtos/update-custom-category-icon.dto';
-import { ExtentedParseIntPipe } from 'core/pipes/extended-parse-int.pipe';
-import { CurrentUser } from 'core/decorators/current-user.decorator';
+import { ParseIntPipe } from '@/core/pipes/parse-int.pipe';
+import { CurrentUser } from '@/core/decorators/current-user.decorator';
 
 @Controller('categories/custom-icons')
 @UseGuards(AuthGuard, RoleGuard)
@@ -50,7 +50,7 @@ export class CustomCategoryIconController {
   @HttpCode(HttpStatus.OK)
   @Serialize(CustomCategoryIconDto)
   update(
-    @Param('id', ExtentedParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateCustomCategoryIconDto,
   ) {
     return this.customIconService.update(id, data);
@@ -60,7 +60,7 @@ export class CustomCategoryIconController {
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Serialize(CustomCategoryIconDto)
-  delete(@Param('id', ExtentedParseIntPipe) id: number) {
+  delete(@Param('id', ParseIntPipe) id: number) {
     return this.customIconService.delete(id);
   }
 }

@@ -1,13 +1,15 @@
 import { Expose, Type } from 'class-transformer';
-import { IsEmail, IsNumber } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class EmailSignInDto {
   @Expose()
-  @IsEmail()
+  @IsEmail({}, { message: '`email` must be a valid email' })
+  @IsNotEmpty()
   email: string;
 
   @Expose()
-  @IsNumber()
+  @IsNumber({}, { message: '`otp` must be a number' })
   @Type(() => Number)
+  @IsNotEmpty()
   otp: number;
 }

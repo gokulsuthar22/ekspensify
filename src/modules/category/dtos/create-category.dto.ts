@@ -1,22 +1,35 @@
 import { TxType } from '@prisma/client';
 import { Expose, Type } from 'class-transformer';
-import { IsIn, IsOptional } from 'class-validator';
+import {
+  IsBoolean,
+  IsIn,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateCategoryDto {
   @Expose()
+  @IsString({ message: '`name` must be a string' })
+  @IsNotEmpty()
   name: string;
 
   @Expose({ name: 'icon_id' })
+  @IsNumber({}, { message: '`icon_id` must be a number' })
   @Type(() => Number)
+  @IsNotEmpty()
   iconId: number;
 
   @Expose()
+  @IsIn(['CREDIT', 'DEBIT'], { message: "`type` must be 'CREDIT' or 'DEBIT'" })
+  @IsString({ message: '`type` must be a string' })
   @IsOptional()
-  @IsIn(['CREDIT', 'DEBIT'])
   type?: TxType;
 
   @Expose({ name: 'is_active' })
-  @IsOptional()
+  @IsBoolean({ message: '`is_active` must be a boolean' })
   @Type(() => Boolean)
+  @IsOptional()
   isActive?: boolean;
 }

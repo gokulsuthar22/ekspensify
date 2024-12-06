@@ -7,7 +7,7 @@ import {
   UpdateAccountData,
 } from './account.interface';
 import { Prisma } from '@prisma/client';
-import { AppHttpException } from 'core/exceptions/http.exception';
+import { AppHttpException } from '@/core/exceptions/app-http.exception';
 
 @Injectable()
 export class AccountService {
@@ -35,7 +35,7 @@ export class AccountService {
     try {
       const account = await this.accountRepo.create(data);
       return account;
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === 'P2002') {
         throw new AppHttpException(
           HttpStatus.CONFLICT,

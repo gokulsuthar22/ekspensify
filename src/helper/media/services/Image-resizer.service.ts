@@ -29,7 +29,7 @@ export class ImageResizerService {
       );
       const [small, medium, large] = resizedImages;
       return { small, medium, large };
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(`Image resizing failed: ${error.message}`);
     }
   }
