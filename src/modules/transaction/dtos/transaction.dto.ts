@@ -10,6 +10,7 @@ export class TransactionDto {
   @Expose()
   @Transform(({ obj }) => {
     return {
+      id: obj?.category?.id,
       name: obj?.category?.name,
       icon: obj?.category?.icon?.path,
     };

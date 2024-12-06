@@ -29,12 +29,14 @@ export class TransactionRepository {
     deletedAt: true,
     account: {
       select: {
+        id: true,
         name: true,
         icon: true,
       },
     },
     category: {
       select: {
+        id: true,
         name: true,
         icon: {
           select: {
