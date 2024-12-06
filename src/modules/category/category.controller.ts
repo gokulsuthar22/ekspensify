@@ -26,6 +26,8 @@ import { ParseIntPipe } from '@/core/pipes/parse-int.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CategoryIconValidationPipe } from './pipes/category-icon-validation.pipe';
 import { UploadIconResponseDto } from './dtos/upload-icon-response.dto';
+import { CacheInterceptor, CacheKey } from '@nestjs/cache-manager';
+import { CATEGORY_CACHE_KEY } from './category.constants';
 
 @Controller('categories')
 @UseGuards(AuthGuard, RoleGuard)
@@ -47,6 +49,8 @@ export class CategoryController {
   @Roles(Role.ADMIN, Role.USER)
   @HttpCode(HttpStatus.OK)
   @Serialize(CategoryDto)
+  @CacheKey(CATEGORY_CACHE_KEY)
+  @UseInterceptors(CacheInterceptor)
   findMany(@CurrentUser() user: any) {
     return this.categoryService.findMany({
       OR:

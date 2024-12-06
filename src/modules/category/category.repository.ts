@@ -1,5 +1,5 @@
 import { PrismaService } from '@/infra/persistence/prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { UtilService } from '@/common/services/util.service';
 import {
   CategoryWhere,
@@ -10,6 +10,8 @@ import {
 } from './category.interface';
 import { Repository } from '@/common/types/repository.interface';
 import { Category } from '@prisma/client';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CATEGORY_CACHE_KEY } from './category.constants';
 
 @Injectable()
 export class CategoryRepository
@@ -17,6 +19,7 @@ export class CategoryRepository
     Repository<Category, CreateCategoryData, UpdateCategoryData, CategoryWhere>
 {
   constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private prismaService: PrismaService,
     private utilService: UtilService,
   ) {}
@@ -56,6 +59,7 @@ export class CategoryRepository
       data: { ...data, slug },
       include: this.include,
     });
+    await this.cacheManager.del(CATEGORY_CACHE_KEY);
     return category;
   }
 
@@ -77,6 +81,7 @@ export class CategoryRepository
       const slug = this.generateSlug(category);
       category = await this.updateSlug(category.id, slug);
     }
+    await this.cacheManager.del(CATEGORY_CACHE_KEY);
     return category;
   }
 
@@ -85,6 +90,7 @@ export class CategoryRepository
       where: { id },
       include: this.include,
     });
+    await this.cacheManager.del(CATEGORY_CACHE_KEY);
     return category;
   }
 
@@ -106,6 +112,7 @@ export class CategoryRepository
       const slug = this.generateSlug(category);
       category = await this.updateSlug(category.id, slug);
     }
+    await this.cacheManager.del(CATEGORY_CACHE_KEY);
     return category;
   }
 
@@ -114,6 +121,7 @@ export class CategoryRepository
       where,
       include: this.include,
     });
+    await this.cacheManager.del(CATEGORY_CACHE_KEY);
     return category;
   }
 

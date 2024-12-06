@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   CreateCustomCategoryIconData,
   CustomCategoryIconWhere,
@@ -6,10 +6,15 @@ import {
   UpdateCustomCategoryIconData,
 } from './custom-category-icon.interface';
 import { PrismaService } from '@/infra/persistence/prisma/prisma.service';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CUSTOM_CATEGORY_ICON_CACHE_KEY } from './custom-category-icon.constants';
 
 @Injectable()
 export class CustomCategoryIconRepository {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private prismaService: PrismaService,
+  ) {}
 
   private get CustomCategoryIcon() {
     return this.prismaService.customCategoryIcon;
@@ -31,6 +36,7 @@ export class CustomCategoryIconRepository {
       data,
       select: this.select,
     });
+    await this.cacheManager.del(CUSTOM_CATEGORY_ICON_CACHE_KEY);
     return categoryIcon;
   }
 
@@ -48,6 +54,7 @@ export class CustomCategoryIconRepository {
       data,
       select: this.select,
     });
+    await this.cacheManager.del(CUSTOM_CATEGORY_ICON_CACHE_KEY);
     return categoryIcon;
   }
 
@@ -56,6 +63,7 @@ export class CustomCategoryIconRepository {
       where: { id },
       select: this.select,
     });
+    await this.cacheManager.del(CUSTOM_CATEGORY_ICON_CACHE_KEY);
     return category;
   }
 
