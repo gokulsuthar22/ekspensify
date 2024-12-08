@@ -15,7 +15,7 @@ export class PaginationService {
     payload: PaginationParams,
   ): Promise<PaginatedResult<T>> {
     // eslint-disable-next-line prefer-const
-    let { page = 1, limit = 10, select, ...where } = payload;
+    let { page = 1, limit = 10, select, orderBy, ...where } = payload;
 
     // Parse's into int
     page = +page;
@@ -34,6 +34,7 @@ export class PaginationService {
         take: limit,
         where,
         select,
+        orderBy,
       }),
       model.count({ where }),
     ]);

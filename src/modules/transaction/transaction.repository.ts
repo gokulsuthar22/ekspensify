@@ -165,7 +165,7 @@ export class TransactionRepository {
   async findMany(where?: PaginationParams) {
     const transactions = await this.paginationService.paginate<Transaction>(
       this.Transaction,
-      { ...where, select: this.select },
+      { ...where, select: this.select, orderBy: { createdAt: 'desc' } },
     );
     return transactions;
   }
