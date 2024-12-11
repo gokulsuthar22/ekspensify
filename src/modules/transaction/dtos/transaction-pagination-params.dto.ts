@@ -1,6 +1,6 @@
 import { TxType } from '@prisma/client';
 import { Expose, Transform, Type } from 'class-transformer';
-import { contains, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsIn, IsOptional, IsString } from 'class-validator';
 import { PaginationParamsDto } from '@/common/dtos/pagination-params.dto';
 
 export class TransactionPaginationParamsDto extends PaginationParamsDto {
@@ -28,7 +28,6 @@ export class TransactionPaginationParamsDto extends PaginationParamsDto {
         ?.filter(Number.isFinite),
     };
   })
-  @IsOptional()
   @IsOptional()
   categoryId?: { in: number[] };
 

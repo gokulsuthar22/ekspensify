@@ -84,6 +84,7 @@ export class TransactionService {
   }
 
   async findMany(where?: FilterTransactionWhere) {
+    console.log(where);
     const transactions = await this.transactionRepo.findMany(where);
     return transactions;
   }

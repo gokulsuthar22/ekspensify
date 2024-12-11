@@ -35,7 +35,8 @@ export class CreateTransactionDto {
 
   @Expose()
   @IsString({ message: '`note` must be a string' })
-  note: string;
+  @IsOptional()
+  note?: string;
 
   @Expose()
   @IsIn(['CREDIT', 'DEBIT'], { message: "`type` must be 'CREDIT' or 'DEBIT'" })
