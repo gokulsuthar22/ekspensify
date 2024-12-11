@@ -89,6 +89,7 @@ model Transaction {
   accountId    Int       @map("account_id")
   categoryId   Int       @map("category_id")
   attachmentId Int?      @map("attachment_id")
+  slug String? @map("slug")
   amount       Decimal   @map("amount")
   note         String?   @map("note")
   type         TxType    @map("type")

@@ -73,7 +73,9 @@ export class UserRepository {
   }
 
   async findMany(where?: PaginationParams) {
-    const user = await this.paginationService.paginate<User>(this.User, where);
+    const user = await this.paginationService.paginate<User>(this.User, {
+      where,
+    });
     return user;
   }
 }

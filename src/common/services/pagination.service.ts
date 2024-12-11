@@ -2,6 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { PaginationParams } from '../types/pagination.type';
 import { PaginatedResult } from '../types/pagination.interface';
 
+interface PaginatePayload extends PaginationParams {
+  select?: any;
+  orderBy?: any;
+  where?: any;
+}
+
 @Injectable()
 export class PaginationService {
   /**
@@ -12,14 +18,16 @@ export class PaginationService {
    */
   async paginate<T>(
     model: any,
-    payload: PaginationParams,
+    payload: PaginatePayload,
   ): Promise<PaginatedResult<T>> {
-    // eslint-disable-next-line prefer-const
-    let { page = 1, limit = 10, select, orderBy, ...where } = payload;
+    let { select, orderBy, where } = payload;
 
     // Parse's into int
-    page = +page;
-    limit = +limit;
+    let page = +where.page || 1;
+    let limit = +where.limit || 10;
+
+    delete where.page;
+    delete where.limit;
 
     // Cap the limit to 100 to prevent large data loads
     if (limit > 100) limit = 100;

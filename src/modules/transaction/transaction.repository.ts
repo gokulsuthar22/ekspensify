@@ -5,6 +5,11 @@ import { AccountService } from '../account/account.service';
 import { AppHttpException } from '@/core/exceptions/app-http.exception';
 import { PaginationService } from '@/common/services/pagination.service';
 import { PaginationParams } from '@/common/types/pagination.type';
+import {
+  FilterTransactionWhere,
+  GenerateTransactionSlug,
+} from './transaction.interface';
+import { UtilService } from '@/common/services/util.service';
 
 @Injectable()
 export class TransactionRepository {
@@ -12,6 +17,7 @@ export class TransactionRepository {
     private prismaService: PrismaService,
     private accountService: AccountService,
     private paginationService: PaginationService,
+    private utilService: UtilService,
   ) {}
 
   private get Transaction() {
@@ -20,6 +26,7 @@ export class TransactionRepository {
 
   private select = {
     id: true,
+    slug: true,
     accountId: true,
     amount: true,
     note: true,
@@ -52,6 +59,25 @@ export class TransactionRepository {
     },
   };
 
+  private generateSlug(tx: GenerateTransactionSlug) {
+    return this.utilService.slugifyText(
+      tx.amount.toString(),
+      tx.type,
+      tx.account,
+      tx.category,
+      tx?.note,
+    );
+  }
+
+  private async updateSlug(id: number, slug: string) {
+    const category = await this.Transaction.update({
+      where: { id },
+      data: { slug },
+      select: this.select,
+    });
+    return category;
+  }
+
   async create(data: Prisma.TransactionUncheckedCreateInput) {
     try {
       const tx = await this.prismaService.$transaction(async (ctx) => {
@@ -73,7 +99,17 @@ export class TransactionRepository {
         //     'Insufficient balance',
         //   );
         // }
-        return tx;
+        const slug = this.generateSlug({
+          ...tx,
+          category: tx.category.name,
+          account: tx.account.name,
+          amount: +tx.amount,
+        });
+        return await ctx.transaction.update({
+          where: { id: tx.id },
+          data: { slug },
+          select: this.select,
+        });
       });
       return tx;
     } catch (e: any) {
@@ -99,11 +135,20 @@ export class TransactionRepository {
     id: number,
     data: Prisma.TransactionUncheckedCreateInput,
   ) {
-    const transaction = await this.Transaction.update({
+    let transaction = await this.Transaction.update({
       where: { id },
       data,
       select: this.select,
     });
+    if (data.note) {
+      const slug = this.generateSlug({
+        ...transaction,
+        category: transaction.category.name,
+        account: transaction.account.name,
+        amount: +transaction.amount,
+      });
+      transaction = await this.updateSlug(transaction.id, slug);
+    }
     return transaction;
   }
 
@@ -136,11 +181,20 @@ export class TransactionRepository {
     where: Prisma.TransactionWhereUniqueInput,
     data?: Prisma.TransactionUpdateInput,
   ) {
-    const transaction = await this.Transaction.update({
+    let transaction = await this.Transaction.update({
       where,
       data,
       select: this.select,
     });
+    if (data.note) {
+      const slug = this.generateSlug({
+        ...transaction,
+        category: transaction.category.name,
+        account: transaction.account.name,
+        amount: +transaction.amount,
+      });
+      transaction = await this.updateSlug(transaction.id, slug);
+    }
     return transaction;
   }
 
@@ -162,10 +216,10 @@ export class TransactionRepository {
     return transaction;
   }
 
-  async findMany(where?: PaginationParams) {
+  async findMany(where?: FilterTransactionWhere) {
     const transactions = await this.paginationService.paginate<Transaction>(
       this.Transaction,
-      { ...where, select: this.select, orderBy: { createdAt: 'desc' } },
+      { where, select: this.select, orderBy: { createdAt: 'desc' } },
     );
     return transactions;
   }

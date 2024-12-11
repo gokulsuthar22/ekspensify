@@ -1,4 +1,13 @@
+import { PaginationParams } from '@/common/types/pagination.type';
 import { TxType } from '@prisma/client';
+
+export interface GenerateTransactionSlug {
+  amount: number;
+  type: TxType;
+  category: string;
+  account: string;
+  note?: string;
+}
 
 export interface CreateTransactionData {
   userId: number;
@@ -24,13 +33,15 @@ export interface UpdateTransactionData {
   type?: TxType;
 }
 
-export interface FilterTransactionWhere {
+export interface FilterTransactionWhere extends PaginationParams {
   userId?: number;
-  accountId?: number;
-  categoryId?: number;
-  note?: string;
-  amount?: number;
+  accountId?: number | { in: number[] };
+  categoryId?: number | { in: number[] };
+  note?: string | { contains: string; mode: 'insensitive' };
+  amount?: number | { gte: number; lte: number };
+  createdAt?: string | { gte: string; lte: string };
   type?: TxType;
+  slug?: { contains: string };
 }
 
 export interface UploadAttachmentData {

@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { TransactionRepository } from './transaction.repository';
 import {
   CreateTransactionData,
+  FilterTransactionWhere,
   TransactionWhere,
   UpdateTransactionData,
   UploadAttachmentData,
@@ -82,7 +83,7 @@ export class TransactionService {
     return Transaction;
   }
 
-  async findMany(where?: PaginationParams) {
+  async findMany(where?: FilterTransactionWhere) {
     const transactions = await this.transactionRepo.findMany(where);
     return transactions;
   }
