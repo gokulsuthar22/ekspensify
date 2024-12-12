@@ -10,7 +10,6 @@ import {
 import { MediaRepository } from '@/helper/media/media.repository';
 import { AppHttpException } from '@/core/exceptions/app-http.exception';
 import { AwsS3Service } from '@/helper/media/services/aws-s3.service';
-import { PaginationParams } from '@/common/types/pagination.type';
 
 @Injectable()
 export class TransactionService {
@@ -84,7 +83,6 @@ export class TransactionService {
   }
 
   async findMany(where?: FilterTransactionWhere) {
-    console.log(where);
     const transactions = await this.transactionRepo.findMany(where);
     return transactions;
   }

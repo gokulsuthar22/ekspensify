@@ -64,13 +64,16 @@ export class TransactionPaginationParamsDto extends PaginationParamsDto {
   @IsOptional()
   slug: { contains: string };
 
-  // @Expose({ name: 'sort_by' })
-  // @Transform(({ obj }) => {
-  //   return {
-  //     createdAt: obj?.sort_by?.created_at,
-  //     amount: obj?.sort_by?.amount,
-  //   };
-  // })
-  // @IsOptional()
-  // sortBy: string;
+  @Expose({ name: 'sort' })
+  @Transform(({ obj }) => {
+    const key = obj?.sort;
+    if (key.startsWith('-')) {
+      obj.sort = obj.sort.replace(/\-/g, '');
+      return { [obj.sort]: 'desc' };
+    } else {
+      return { [obj?.sort]: 'asc' };
+    }
+  })
+  @IsOptional()
+  orderBy: any;
 }

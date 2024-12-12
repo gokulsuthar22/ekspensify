@@ -42,6 +42,7 @@ export interface FilterTransactionWhere extends PaginationParams {
   createdAt?: string | { gte: string; lte: string };
   type?: TxType;
   slug?: { contains: string };
+  orderBy?: any;
 }
 
 export interface UploadAttachmentData {
