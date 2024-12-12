@@ -67,6 +67,7 @@ export class TransactionPaginationParamsDto extends PaginationParamsDto {
   @Expose({ name: 'sort' })
   @Transform(({ obj }) => {
     const key = obj?.sort;
+    if (!key) return;
     if (key.startsWith('-')) {
       obj.sort = obj.sort.replace(/\-/g, '');
       return { [obj.sort]: 'desc' };
