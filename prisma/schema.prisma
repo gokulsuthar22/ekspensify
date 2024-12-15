@@ -35,6 +35,7 @@ model User {
   categories   Category[]
   transactions Transaction[]
   media        Media[]
+  Budget       Budget[]
 
   @@map("users")
 }
@@ -89,7 +90,7 @@ model Transaction {
   accountId    Int       @map("account_id")
   categoryId   Int       @map("category_id")
   attachmentId Int?      @map("attachment_id")
-  slug String? @map("slug")
+  slug         String?   @map("slug")
   amount       Decimal   @map("amount")
   note         String?   @map("note")
   type         TxType    @map("type")
@@ -120,6 +121,7 @@ model Category {
   user        User?         @relation(fields: [userId], references: [id])
   icon        Media?        @relation(fields: [iconId], references: [id])
   Transaction Transaction[]
+  Budget      Budget[]
 
   @@map("categories")
 }
@@ -143,6 +145,7 @@ model Account {
 
   user        User          @relation(fields: [userId], references: [id])
   Transaction Transaction[]
+  Budget      Budget[]
 
   @@map("accounts")
 }
@@ -157,4 +160,38 @@ model CustomCategoryIcon {
   icon      Media?    @relation(fields: [iconId], references: [id])
 
   @@map("custom_category_icons")
+}
+
+enum BudgetType {
+  RECURRING
+  EXPIRING
+}
+
+enum BudgetPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+model Budget {
+  id         Int          @id @default(autoincrement())
+  limit      Decimal      @map("limit")
+  spent      Decimal?     @default(0) @map("spent")
+  userId     Int          @map("user_id")
+  accountId  Int?         @map("account_id")
+  categoryId Int?         @map("category_id")
+  period     BudgetPeriod @map("period")
+  type       BudgetType   @map("type")
+  startDate  DateTime     @map("start_date")
+  endDate    DateTime?    @map("end_date")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+
+  user     User?     @relation(fields: [userId], references: [id])
+  account  Account?  @relation(fields: [accountId], references: [id])
+  category Category? @relation(fields: [categoryId], references: [id])
+
+  @@map("budgets")
 }

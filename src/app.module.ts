@@ -14,6 +14,7 @@ import { redisStore } from 'cache-manager-redis-yet';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { AppController } from 'app.controller';
 import { CustomCategoryIconModule } from '@/modules/custom-category-icons/custom-category-icon.module';
+import { BudgetModule } from './modules/budget/budget.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { CustomCategoryIconModule } from '@/modules/custom-category-icons/custom
     AccountModule,
     TransactionModule,
     CustomCategoryIconModule,
+    BudgetModule,
   ],
   controllers: [AppController],
 })

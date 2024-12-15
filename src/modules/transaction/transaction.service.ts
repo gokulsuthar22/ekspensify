@@ -49,7 +49,6 @@ export class TransactionService {
         entityType: 'transaction',
       });
     }
-
     return transaction;
   }
 

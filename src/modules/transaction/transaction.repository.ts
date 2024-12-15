@@ -4,7 +4,6 @@ import { Prisma, Transaction } from '@prisma/client';
 import { AccountService } from '../account/account.service';
 import { AppHttpException } from '@/core/exceptions/app-http.exception';
 import { PaginationService } from '@/common/services/pagination.service';
-import { PaginationParams } from '@/common/types/pagination.type';
 import {
   FilterTransactionWhere,
   GenerateTransactionSlug,
