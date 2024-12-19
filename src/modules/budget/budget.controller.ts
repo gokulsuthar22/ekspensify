@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { BudgetService } from './budget.service';
@@ -19,6 +20,12 @@ import { BudgetDto } from './dtos/budget.dto';
 import { CreateBudgetDto } from './dtos/create-budget.dto';
 import { AuthGuard } from '@/core/guards/auth.guard';
 import { RoleGuard } from '@/core/guards/role.guard';
+import { BudgetTransactionPaginatedResponseDto } from './dtos/budget-transaction-paginatated-response.dto';
+import { BudgetReportPaginatedResponseDto } from './dtos/budget-report-paginatated-response.dto';
+import { BudgetReportPaginationParamsDto } from './dtos/budget-report-pagination-params.dto';
+import { BudgetTransactionPaginationParamsDto } from './dtos/budget-transaction-pagination-params.dto';
+import { BudgetPaginatedResponseDto } from './dtos/budget-paginatated-response.dto';
+import { BudgetPaginationParamsDto } from './dtos/budget-pagination-params.dto';
 
 @Controller('budgets')
 @UseGuards(AuthGuard, RoleGuard)
@@ -28,9 +35,39 @@ export class BudgetController {
   @Get()
   @Roles(Role.USER)
   @HttpCode(HttpStatus.OK)
-  @Serialize(BudgetDto)
-  findMany(@CurrentUser() user: any) {
-    return this.budgetService.findMany({ userId: user.id });
+  @Serialize(BudgetPaginatedResponseDto)
+  findMany(
+    @CurrentUser() user: any,
+    @Query() query: BudgetPaginationParamsDto,
+  ) {
+    return this.budgetService.findMany({ ...query, userId: user.id });
+  }
+
+  @Get(':id/reports/:reportId/transactions')
+  @Roles(Role.USER)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(BudgetTransactionPaginatedResponseDto)
+  findManyTransactions(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('reportId', ParseIntPipe) reportId: number,
+    @Query() query: BudgetTransactionPaginationParamsDto,
+  ) {
+    return this.budgetService.findManyBudgetTransactions({
+      ...query,
+      budgetId: id,
+      reportId,
+    });
+  }
+
+  @Get(':id/reports')
+  @Roles(Role.USER)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(BudgetReportPaginatedResponseDto)
+  findManyBudgets(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() query: BudgetReportPaginationParamsDto,
+  ) {
+    return this.budgetService.findManyBudgetReports({ ...query, budgetId: id });
   }
 
   @Post()

@@ -6,32 +6,39 @@ import {
   FilterBudgetWhere,
   UpdateBudgetData,
 } from './budget.interface';
+import { Budget } from '@prisma/client';
+import { PaginationService } from '@/common/services/pagination.service';
 
 @Injectable()
 export class BudgetRepository {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private paginationService: PaginationService,
+  ) {}
 
   private select = {
     id: true,
     limit: true,
     spent: true,
     userId: true,
-    accountId: true,
-    categoryId: true,
+    accountIds: true,
+    categoryIds: true,
+    reportId: true,
     period: true,
+    periodNo: true,
     type: true,
     startDate: true,
     endDate: true,
     createdAt: true,
     updatedAt: true,
-    account: {
+    accounts: {
       select: {
         id: true,
         name: true,
         icon: true,
       },
     },
-    category: {
+    categories: {
       select: {
         id: true,
         name: true,
@@ -94,7 +101,32 @@ export class BudgetRepository {
   }
 
   async findMany(where?: FilterBudgetWhere) {
-    const budgets = await this.Budget.findMany({ where, select: this.select });
+    const budgets = await this.paginationService.paginate<Budget>(this.Budget, {
+      where,
+      select: this.select,
+      orderBy: { createdAt: 'desc' },
+    });
+    return budgets;
+  }
+
+  async findActiveBudgetsByDate(
+    userId: number,
+    date: Date,
+    accountId?: number,
+    categoryId?: number,
+  ) {
+    const budgets = await this.Budget.findMany({
+      where: {
+        userId: userId,
+        startDate: { lte: date },
+        OR: [
+          { endDate: { gte: date } },
+          { endDate: null },
+          { accountIds: { has: accountId } },
+          { categoryIds: { has: categoryId } },
+        ],
+      },
+    });
     return budgets;
   }
 }

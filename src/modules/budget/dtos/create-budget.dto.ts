@@ -8,6 +8,7 @@ import {
   IsString,
   ValidateIf,
 } from 'class-validator';
+import * as moment from 'moment';
 
 export class CreateBudgetDto {
   @Expose()
@@ -16,17 +17,13 @@ export class CreateBudgetDto {
   @IsNotEmpty()
   limit: number;
 
-  @Expose({ name: 'account_id' })
-  @IsNumber({}, { message: '`account_id` must be a number' })
-  @Type(() => Number)
+  @Expose({ name: 'account_ids' })
   @IsOptional()
-  accountId?: number;
+  accountIds?: number[];
 
-  @Expose({ name: 'category_id' })
-  @IsNumber({}, { message: '`category_id` must be a number' })
-  @Type(() => Number)
+  @Expose({ name: 'category_ids' })
   @IsOptional()
-  categoryId?: number;
+  categoryIds?: number[];
 
   @Expose()
   @IsIn(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY'], {
@@ -47,14 +44,16 @@ export class CreateBudgetDto {
 
   @Expose({ name: 'start_date' })
   @Transform(({ obj }) => {
-    return obj?.start_date ? new Date(obj.start_date) : new Date();
+    return obj?.start_date
+      ? moment(obj.start_date).utc().toDate()
+      : moment().utc().toDate();
   })
   @IsNotEmpty()
   startDate: string;
 
   @Expose({ name: 'end_date' })
   @Transform(({ obj }) => {
-    return obj?.end_date ? new Date(obj.end_date) : undefined;
+    return obj?.end_date ? moment(obj.end_date).utc().toDate() : undefined;
   })
   @ValidateIf((o: CreateBudgetDto) => o.type === 'EXPIRING')
   @IsNotEmpty()

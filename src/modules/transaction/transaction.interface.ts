@@ -9,6 +9,15 @@ export interface GenerateTransactionSlug {
   note?: string;
 }
 
+export interface handleBudgetTransactionProcessingData {
+  txId: number;
+  txCreatedAt: Date;
+  txAmount: number;
+  userId: number;
+  accountId: number;
+  categoryId: number;
+}
+
 export interface CreateTransactionData {
   userId: number;
   accountId: number;

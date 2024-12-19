@@ -35,7 +35,7 @@ model User {
   categories   Category[]
   transactions Transaction[]
   media        Media[]
-  Budget       Budget[]
+  budgets      Budget[]
 
   @@map("users")
 }
@@ -72,9 +72,9 @@ model Media {
   mime               String               @map("mime")
   uploadedAt         DateTime             @default(now()) @map("uploaded_at")
   user               User                 @relation(fields: [userId], references: [id])
-  Category           Category[]
-  Transaction        Transaction[]
-  CustomCategoryIcon CustomCategoryIcon[]
+  categories         Category[]
+  transactions       Transaction[]
+  customCategoryIcon CustomCategoryIcon[]
 
   @@map("media")
 }
@@ -98,10 +98,11 @@ model Transaction {
   updatedAt    DateTime  @updatedAt @map("updated_at")
   deletedAt    DateTime? @map("deleted_at")
 
-  attachment Media?    @relation(fields: [attachmentId], references: [id])
-  user       User?     @relation(fields: [userId], references: [id])
-  account    Account?  @relation(fields: [accountId], references: [id])
-  category   Category? @relation(fields: [categoryId], references: [id])
+  attachment         Media?              @relation(fields: [attachmentId], references: [id])
+  user               User?               @relation(fields: [userId], references: [id])
+  account            Account?            @relation(fields: [accountId], references: [id])
+  category           Category?           @relation(fields: [categoryId], references: [id])
+  budgetTransactions BudgetTransaction[]
 
   @@map("transactions")
 }
@@ -118,10 +119,10 @@ model Category {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  user        User?         @relation(fields: [userId], references: [id])
-  icon        Media?        @relation(fields: [iconId], references: [id])
-  Transaction Transaction[]
-  Budget      Budget[]
+  user         User?         @relation(fields: [userId], references: [id])
+  icon         Media?        @relation(fields: [iconId], references: [id])
+  transactions Transaction[]
+  budgets      Budget[]
 
   @@map("categories")
 }
@@ -143,9 +144,9 @@ model Account {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  user        User          @relation(fields: [userId], references: [id])
-  Transaction Transaction[]
-  Budget      Budget[]
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+  budgets      Budget[]
 
   @@map("accounts")
 }
@@ -176,22 +177,55 @@ enum BudgetPeriod {
 }
 
 model Budget {
-  id         Int          @id @default(autoincrement())
-  limit      Decimal      @map("limit")
-  spent      Decimal?     @default(0) @map("spent")
-  userId     Int          @map("user_id")
-  accountId  Int?         @map("account_id")
-  categoryId Int?         @map("category_id")
-  period     BudgetPeriod @map("period")
-  type       BudgetType   @map("type")
-  startDate  DateTime     @map("start_date")
-  endDate    DateTime?    @map("end_date")
-  createdAt  DateTime     @default(now()) @map("created_at")
-  updatedAt  DateTime     @updatedAt @map("updated_at")
+  id          Int          @id @default(autoincrement())
+  limit       Decimal      @map("limit")
+  spent       Decimal?     @default(0) @map("spent")
+  userId      Int          @map("user_id")
+  reportId    Int?         @map("report_id")
+  accountIds  Int[]        @map("account_ids")
+  categoryIds Int[]        @map("category_ids")
+  periodNo    Int          @default(1) @map("period_no")
+  period      BudgetPeriod @map("period")
+  type        BudgetType   @map("type")
+  startDate   DateTime     @map("start_date")
+  endDate     DateTime?    @map("end_date")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
 
-  user     User?     @relation(fields: [userId], references: [id])
-  account  Account?  @relation(fields: [accountId], references: [id])
-  category Category? @relation(fields: [categoryId], references: [id])
+  user         User?               @relation(fields: [userId], references: [id])
+  report       BudgetReport?       @relation(fields: [reportId], references: [id])
+  accounts     Account[]
+  categories   Category[]
+  transactions BudgetTransaction[]
 
   @@map("budgets")
+}
+
+model BudgetTransaction {
+  id            Int      @id @default(autoincrement())
+  budgetId      Int      @map("budget_id")
+  transactionId Int      @map("transaction_id")
+  reportId      Int      @map("report_id")
+  amount        Decimal  @map("amount")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  budget      Budget?       @relation(fields: [budgetId], references: [id])
+  transaction Transaction?  @relation(fields: [transactionId], references: [id])
+  report      BudgetReport? @relation(fields: [reportId], references: [id])
+
+  @@map("budget_transactions")
+}
+
+model BudgetReport {
+  id              Int                 @id @default(autoincrement())
+  budgetId        Int                 @map("budget_id")
+  amount          Decimal             @map("amount")
+  periodNo        Int                 @map("period_no")
+  periodStartDate DateTime            @map("period_start_date")
+  periodEndDate   DateTime            @map("period_end_date")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  transactions    BudgetTransaction[]
+  budgets         Budget[]
+
+  @@map("budget_reports")
 }

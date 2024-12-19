@@ -3,6 +3,7 @@ import { TransactionRepository } from './transaction.repository';
 import {
   CreateTransactionData,
   FilterTransactionWhere,
+  handleBudgetTransactionProcessingData,
   TransactionWhere,
   UpdateTransactionData,
   UploadAttachmentData,
@@ -10,11 +11,18 @@ import {
 import { MediaRepository } from '@/helper/media/media.repository';
 import { AppHttpException } from '@/core/exceptions/app-http.exception';
 import { AwsS3Service } from '@/helper/media/services/aws-s3.service';
+import { BudgetRepository } from '../budget/budget.repository';
+import { BudgetTransactionRepository } from '../budget/repositories/budget-transaction.repository';
+import { BudgetReportRepository } from '../budget/repositories/budget-report.repository';
+import { Transaction } from '@prisma/client';
 
 @Injectable()
 export class TransactionService {
   constructor(
     private transactionRepo: TransactionRepository,
+    private budgetRepo: BudgetRepository,
+    private budgetReportRepo: BudgetReportRepository,
+    private budgetTransactionRepo: BudgetTransactionRepository,
     private mediaRepo: MediaRepository,
     private awsS3Service: AwsS3Service,
   ) {}
@@ -38,17 +46,65 @@ export class TransactionService {
     return attachment;
   }
 
+  private async handleBudgetTransactionProcessing(
+    data: handleBudgetTransactionProcessingData,
+  ) {
+    const budgets = await this.budgetRepo.findActiveBudgetsByDate(
+      data.userId,
+      data.txCreatedAt,
+      data.accountId,
+      data.categoryId,
+    );
+
+    if (!budgets.length) return;
+
+    for (let budget of budgets) {
+      const budgetTx = await this.budgetTransactionRepo.create({
+        budgetId: budget.id,
+        reportId: budget.reportId,
+        transactionId: data.txId,
+        amount: data.txAmount,
+      });
+
+      const totalPeriodAmt =
+        await this.budgetTransactionRepo.calTotalPeriodAmount(
+          budgetTx.reportId,
+        );
+
+      await Promise.all([
+        this.budgetReportRepo.update(budget.reportId, {
+          amount: totalPeriodAmt,
+        }),
+        this.budgetRepo.updateById(budget.id, {
+          spent: totalPeriodAmt,
+        }),
+      ]);
+    }
+  }
+
   async create(data: CreateTransactionData) {
     if (data.attachmentId) {
       await this.validateAttachment(data.attachmentId);
     }
+
     const transaction = await this.transactionRepo.create(data);
+
     if (data.attachmentId) {
       await this.mediaRepo.findByIdAndUpdate(data.attachmentId, {
         entityId: data.attachmentId,
         entityType: 'transaction',
       });
     }
+
+    if (transaction.type === 'DEBIT') {
+      await this.handleBudgetTransactionProcessing({
+        ...data,
+        txId: transaction.id,
+        txAmount: +transaction.amount,
+        txCreatedAt: transaction.createdAt,
+      });
+    }
+
     return transaction;
   }
 

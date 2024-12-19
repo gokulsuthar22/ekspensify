@@ -5,9 +5,10 @@ import { TransactionRepository } from './transaction.repository';
 import { MediaModule } from '@/helper/media/media.module';
 import { UserModule } from '@/shared/user/user.module';
 import { AccountModule } from '../account/account.module';
+import { BudgetModule } from '../budget/budget.module';
 
 @Module({
-  imports: [AccountModule, UserModule, MediaModule],
+  imports: [AccountModule, UserModule, MediaModule, BudgetModule],
   controllers: [TransactionController],
   providers: [TransactionService, TransactionRepository],
 })

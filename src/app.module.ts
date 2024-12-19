@@ -15,6 +15,8 @@ import { TransactionModule } from './modules/transaction/transaction.module';
 import { AppController } from 'app.controller';
 import { CustomCategoryIconModule } from '@/modules/custom-category-icons/custom-category-icon.module';
 import { BudgetModule } from './modules/budget/budget.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronService } from './common/services/corn.service';
 
 @Module({
   imports: [
@@ -53,6 +55,7 @@ import { BudgetModule } from './modules/budget/budget.module';
         };
       },
     }),
+    ScheduleModule.forRoot(),
     MeModule,
     AuthModule,
     UserModule,
@@ -62,6 +65,7 @@ import { BudgetModule } from './modules/budget/budget.module';
     CustomCategoryIconModule,
     BudgetModule,
   ],
+  providers: [CronService],
   controllers: [AppController],
 })
 export class AppModule {}

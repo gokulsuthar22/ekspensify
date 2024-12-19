@@ -14,7 +14,7 @@ export class BudgetDto {
   spent: number;
 
   @Expose()
-  account: any;
+  accounts: any;
 
   @Expose()
   @Transform(({ obj }) => {
@@ -24,12 +24,15 @@ export class BudgetDto {
           name: obj?.category?.name,
           icon: obj?.category?.icon?.path,
         }
-      : null;
+      : [];
   })
-  category: any;
+  categories: any;
 
   @Expose()
   period: string;
+
+  @Expose({ name: 'periodNo' })
+  period_no: number;
 
   @Expose()
   type: string;
