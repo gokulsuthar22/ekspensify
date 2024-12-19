@@ -21,20 +21,19 @@ export class BudgetService {
   async create(data: Omit<CreateBudgetData, 'reportId'>) {
     let budget = await this.budgetRepo.create(data);
     // week, year, quater, month
-    const period = budget.period.toLowerCase().replace('ly', '');
-    // period start based on the current running period
-    const periodStart = moment().utc();
-    // period end based on the current running period
-    const periodEnd = moment()
-      .utc()
-      .endOf(period as moment.unitOfTime.StartOf);
+    const currentDate = moment().utc();
+    const periodUnit = budget.period
+      .toLowerCase()
+      .replace('ly', '') as moment.unitOfTime.DurationConstructor;
+    const periodStartDate = currentDate.toDate();
+    const periodEndDate = currentDate.clone().add(1, periodUnit).toDate();
     // create budget report for current period
     const report = await this.budgetReportRepo.create({
       budgetId: budget.id,
       amount: 0,
       periodNo: budget.periodNo,
-      periodStartDate: periodStart,
-      periodEndDate: periodEnd,
+      periodStartDate: periodStartDate,
+      periodEndDate: periodEndDate,
     });
     budget = await this.budgetRepo.updateById(budget.id, {
       reportId: report.id,
