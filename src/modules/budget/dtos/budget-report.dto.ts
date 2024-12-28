@@ -1,3 +1,4 @@
+import { TransactionDto } from '@/modules/transaction/dtos/transaction.dto';
 import { Expose, Type } from 'class-transformer';
 
 export class BudgetReportDto {
@@ -16,4 +17,8 @@ export class BudgetReportDto {
 
   @Expose({ name: 'periodEndDate' })
   period_end_date: string;
+
+  @Expose()
+  @Type(() => TransactionDto)
+  transactions: TransactionDto[];
 }

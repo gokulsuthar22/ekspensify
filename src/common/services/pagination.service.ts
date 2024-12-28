@@ -6,6 +6,7 @@ interface PaginatePayload extends PaginationParams {
   select?: any;
   orderBy?: any;
   where?: any;
+  include?: any;
 }
 
 @Injectable()
@@ -20,7 +21,7 @@ export class PaginationService {
     model: any,
     payload: PaginatePayload,
   ): Promise<PaginatedResult<T>> {
-    let { select, orderBy, where } = payload;
+    let { select, orderBy, where, include } = payload;
 
     // Parse's into int
     let page = +where.page || 1;
@@ -41,6 +42,7 @@ export class PaginationService {
         skip: offset,
         take: limit,
         where,
+        include,
         select,
         orderBy,
       }),

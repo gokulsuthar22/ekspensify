@@ -66,6 +66,10 @@ export class BudgetService {
 
   async findManyBudgetReports(where?: any) {
     const budgetReports = await this.budgetReportRepo.findMany(where);
+    budgetReports.items = budgetReports.items.map((r: any) => {
+      r.transactions = r.transactions.map((t: any) => t.transaction);
+      return r;
+    });
     return budgetReports;
   }
 }

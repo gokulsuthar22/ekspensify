@@ -48,8 +48,29 @@ export class CronService {
         isQuarterEnd,
         isYearEnd,
       );
+
       if (shouldUpdate) {
         budgetIdsToUpdate.push(budget.id);
+
+        // Generate new budget reports and update budgets with the new reports
+        const { periodStartDate, periodEndDate } = this.calculatePeriodDates(
+          budget.period,
+          currentDate,
+        );
+
+        const budgetReports = await this.prismaService.budgetReport.create({
+          data: {
+            budgetId: budget.id,
+            amount: 0,
+            periodNo: budget.periodNo + 1,
+            periodStartDate,
+            periodEndDate,
+          },
+        });
+
+        // this.logger.debug(`${budgetReports.length} budget reports created`);
+
+        await this.updateBudgetsWithReports(budgetReports);
       }
     }
 
@@ -62,31 +83,6 @@ export class CronService {
 
       this.logger.debug(`${budgetIdsToUpdate.length} budgets updated`);
     }
-
-    // Generate new budget reports and update budgets with the new reports
-    const budgetReportsData = recurringBudgets.map((budget) => {
-      const { periodStartDate, periodEndDate } = this.calculatePeriodDates(
-        budget.period,
-        currentDate,
-      );
-
-      return {
-        budgetId: budget.id,
-        amount: 0,
-        periodNo: budget.periodNo + 1,
-        periodStartDate,
-        periodEndDate,
-      };
-    });
-
-    const budgetReports =
-      await this.prismaService.budgetReport.createManyAndReturn({
-        data: budgetReportsData,
-      });
-
-    this.logger.debug(`${budgetReports.length} budget reports created`);
-
-    await this.updateBudgetsWithReports(budgetReports);
 
     this.logger.debug(
       `Daily budget processing finished at ${new Date().toISOString()}`,
@@ -130,14 +126,10 @@ export class CronService {
     return { periodStartDate, periodEndDate };
   }
 
-  private async updateBudgetsWithReports(budgetReports: any[]) {
-    const updatePromises = budgetReports.map((report) =>
-      this.prismaService.budget.update({
-        where: { id: report.budgetId },
-        data: { reportId: report.id, spent: 0 },
-      }),
-    );
-
-    await Promise.all(updatePromises);
+  private async updateBudgetsWithReports(report: any) {
+    await this.prismaService.budget.update({
+      where: { id: report.budgetId },
+      data: { reportId: report.id, spent: 0 },
+    });
   }
 }

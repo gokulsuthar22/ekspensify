@@ -10,6 +10,41 @@ export class BudgetReportRepository {
     private paginationService: PaginationService,
   ) {}
 
+  private txSelect = {
+    id: true,
+    slug: true,
+    accountId: true,
+    amount: true,
+    note: true,
+    type: true,
+    createdAt: true,
+    updatedAt: true,
+    deletedAt: true,
+    account: {
+      select: {
+        id: true,
+        name: true,
+        icon: true,
+      },
+    },
+    category: {
+      select: {
+        id: true,
+        name: true,
+        icon: {
+          select: {
+            path: true,
+          },
+        },
+      },
+    },
+    attachment: {
+      select: {
+        path: true,
+      },
+    },
+  };
+
   private get BudgetReport() {
     return this.prismaService.budgetReport;
   }
@@ -27,7 +62,20 @@ export class BudgetReportRepository {
   async findMany(where?: any) {
     const reports = await this.paginationService.paginate<BudgetReport>(
       this.BudgetReport,
-      { where, orderBy: { createdAt: 'desc' } },
+      {
+        where,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          transactions: {
+            include: {
+              transaction: {
+                select: this.txSelect,
+              },
+            },
+            take: 10,
+          },
+        },
+      },
     );
     return reports;
   }
