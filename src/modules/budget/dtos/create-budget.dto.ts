@@ -19,11 +19,25 @@ export class CreateBudgetDto {
 
   @Expose({ name: 'account_ids' })
   @IsOptional()
-  accountIds?: number[];
+  @Transform(({ obj }) => {
+    return (
+      obj.account_ids?.map((i: any) => {
+        return { accountId: i };
+      }) || []
+    );
+  })
+  budgetAccounts?: any[];
 
   @Expose({ name: 'category_ids' })
   @IsOptional()
-  categoryIds?: number[];
+  @Transform(({ obj }) => {
+    return (
+      obj.category_ids?.map((i) => {
+        return { categoryId: i };
+      }) || []
+    );
+  })
+  budgetCategories?: any[];
 
   @Expose()
   @IsIn(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY'], {

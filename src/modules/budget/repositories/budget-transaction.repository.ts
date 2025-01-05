@@ -59,13 +59,29 @@ export class BudgetTransactionRepository {
       this.BudgetTransaction,
       {
         where,
-        select: {
-          transaction: { select: this.txSelect },
-        },
+        select: { transaction: { select: this.txSelect } },
         orderBy: { createdAt: 'desc' },
       },
     );
     return budgetTxs;
+  }
+
+  async findManyAndDelete(where: any) {
+    const budgetTxs = await this.BudgetTransaction.findMany({ where });
+
+    await this.BudgetTransaction.deleteMany({ where });
+
+    return budgetTxs;
+  }
+
+  async calTotalReportTx(reportId: number) {
+    const { _count } = await this.BudgetTransaction.aggregate({
+      _count: true,
+      where: {
+        reportId,
+      },
+    });
+    return +_count || 0;
   }
 
   async calTotalPeriodAmount(reportId: number) {

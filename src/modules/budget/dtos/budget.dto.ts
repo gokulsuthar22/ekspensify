@@ -1,4 +1,6 @@
-import { Expose, Transform, Type } from 'class-transformer';
+import { AccountDto } from '@/modules/account/dtos/account.dto';
+import { CategoryDto } from '@/modules/category/dtos/category.dto';
+import { Expose, plainToInstance, Transform, Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 
 export class BudgetDto {
@@ -13,20 +15,25 @@ export class BudgetDto {
   @Type(() => Number)
   spent: number;
 
-  @Expose()
-  accounts: any;
-
-  @Expose()
+  @Expose({ name: 'budgetAccounts' })
   @Transform(({ obj }) => {
-    return obj.categoryId
-      ? {
-          id: obj?.category?.id,
-          name: obj?.category?.name,
-          icon: obj?.category?.icon?.path,
-        }
-      : [];
+    return plainToInstance(
+      AccountDto,
+      obj?.budgetAccounts?.map((b: any) => b?.account),
+    );
   })
-  categories: any;
+  @Type(() => AccountDto)
+  accounts: AccountDto[];
+
+  @Expose({ name: 'budgetCategories' })
+  @Transform(({ obj }) => {
+    return plainToInstance(
+      CategoryDto,
+      obj?.budgetCategories?.map((b: any) => b?.category),
+    );
+  })
+  @Type(() => CategoryDto)
+  categories: CategoryDto[];
 
   @Expose()
   period: string;
@@ -36,6 +43,9 @@ export class BudgetDto {
 
   @Expose()
   type: string;
+
+  @Expose()
+  status: string;
 
   @Expose({ name: 'startDate' })
   start_date: string;

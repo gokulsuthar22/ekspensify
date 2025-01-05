@@ -1,7 +1,7 @@
 import { Expose } from 'class-transformer';
 import { PaginatedResult } from '../types/pagination.interface';
 
-export class PaginatedResultDto<T> implements PaginatedResult<T> {
+export class PaginatedResultDto<T, U = any> implements PaginatedResult<T, U> {
   @Expose()
   limit: number;
 
@@ -19,4 +19,7 @@ export class PaginatedResultDto<T> implements PaginatedResult<T> {
 
   @Expose()
   items: any;
+
+  @Expose()
+  meta?: U;
 }

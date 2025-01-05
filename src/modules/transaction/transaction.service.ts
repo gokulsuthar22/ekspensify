@@ -14,7 +14,6 @@ import { AwsS3Service } from '@/helper/media/services/aws-s3.service';
 import { BudgetRepository } from '../budget/budget.repository';
 import { BudgetTransactionRepository } from '../budget/repositories/budget-transaction.repository';
 import { BudgetReportRepository } from '../budget/repositories/budget-report.repository';
-import { Transaction } from '@prisma/client';
 
 @Injectable()
 export class TransactionService {
@@ -71,11 +70,45 @@ export class TransactionService {
           budgetTx.reportId,
         );
 
+      const totalReportTx = await this.budgetTransactionRepo.calTotalReportTx(
+        budgetTx.reportId,
+      );
+
       await Promise.all([
         this.budgetReportRepo.update(budget.reportId, {
           amount: totalPeriodAmt,
+          totalTransactions: totalReportTx,
         }),
         this.budgetRepo.updateById(budget.id, {
+          spent: totalPeriodAmt,
+        }),
+      ]);
+    }
+  }
+
+  async handleDeleteTransaction(data: handleBudgetTransactionProcessingData) {
+    const budgetTxns = await this.budgetTransactionRepo.findManyAndDelete({
+      transactionId: data.txId,
+    });
+
+    if (!budgetTxns.length) return;
+
+    for (let budgetTxn of budgetTxns) {
+      const totalPeriodAmt =
+        await this.budgetTransactionRepo.calTotalPeriodAmount(
+          budgetTxn.reportId,
+        );
+
+      const totalReportTx = await this.budgetTransactionRepo.calTotalReportTx(
+        budgetTxn.reportId,
+      );
+
+      await Promise.all([
+        this.budgetReportRepo.update(budgetTxn.reportId, {
+          amount: totalPeriodAmt,
+          totalTransactions: totalReportTx,
+        }),
+        this.budgetRepo.updateById(budgetTxn.budgetId, {
           spent: totalPeriodAmt,
         }),
       ]);
@@ -130,11 +163,22 @@ export class TransactionService {
   }
 
   async delete(where: TransactionWhere) {
-    const Transaction = await this.transactionRepo.findOneAndDelete(where);
-    if (!Transaction) {
+    const transaction = await this.transactionRepo.findOneAndDelete(where);
+
+    if (!transaction) {
       throw new AppHttpException(HttpStatus.NOT_FOUND, 'Transaction not found');
     }
-    return Transaction;
+
+    await this.handleDeleteTransaction({
+      accountId: transaction.accountId,
+      categoryId: transaction.category.id,
+      txAmount: +transaction.amount,
+      txCreatedAt: transaction.createdAt,
+      txId: transaction.id,
+      userId: where.userId,
+    });
+
+    return transaction;
   }
 
   async findMany(where?: FilterTransactionWhere) {

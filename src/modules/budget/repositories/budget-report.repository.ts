@@ -2,6 +2,8 @@ import { PaginationService } from '@/common/services/pagination.service';
 import { PrismaService } from '@/infra/persistence/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { BudgetReport } from '@prisma/client';
+import * as moment from 'moment';
+import { CreateBudgetReportData } from '../budget.interface';
 
 @Injectable()
 export class BudgetReportRepository {
@@ -49,8 +51,35 @@ export class BudgetReportRepository {
     return this.prismaService.budgetReport;
   }
 
-  async create(data: any) {
-    const report = await this.BudgetReport.create({ data });
+  async create(data: CreateBudgetReportData) {
+    const currentDate = moment().utc();
+
+    let periodUnit = data.budgetPeriod.toLowerCase().replace('ly', '');
+
+    if (periodUnit === 'dai') {
+      periodUnit = 'day';
+    }
+
+    let periodStartDate = currentDate.clone().toDate();
+    let periodEndDate = currentDate
+      .endOf(periodUnit as moment.unitOfTime.DurationConstructor)
+      .subtract(5, 'hours')
+      .subtract(30, 'minutes')
+      .toDate();
+
+    if (periodUnit === 'day') {
+      periodEndDate = periodStartDate;
+    }
+
+    const report = await this.BudgetReport.create({
+      data: {
+        budgetId: data.budgetId,
+        periodStartDate,
+        periodEndDate,
+        periodNo: data.budgetPeriodNo,
+      },
+    });
+
     return report;
   }
 
@@ -65,16 +94,6 @@ export class BudgetReportRepository {
       {
         where,
         orderBy: { createdAt: 'desc' },
-        include: {
-          transactions: {
-            include: {
-              transaction: {
-                select: this.txSelect,
-              },
-            },
-            take: 10,
-          },
-        },
       },
     );
     return reports;

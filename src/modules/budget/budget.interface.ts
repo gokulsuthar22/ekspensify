@@ -1,15 +1,15 @@
-import { BudgetPeriod, BudgetType } from '@prisma/client';
+import { BudgetPeriod, BudgetStatus, BudgetType } from '@prisma/client';
 
 export interface CreateBudgetData {
   limit: number;
   userId: number;
   reportId?: number;
-  accountId?: number;
-  categoryId?: number;
   period: BudgetPeriod;
   type: BudgetType;
   startDate: string;
   endDate?: string;
+  budgetAccounts?: any[];
+  budgetCategories?: any[];
 }
 
 export interface UpdateBudgetData {
@@ -21,6 +21,7 @@ export interface UpdateBudgetData {
   categoryId?: number;
   period?: BudgetPeriod;
   type?: BudgetType;
+  status?: BudgetStatus;
   startDate?: string;
   endDate?: string;
   amount?: number;
@@ -33,4 +34,25 @@ export interface FilterBudgetWhere {
 export interface BudgetWhere {
   id: number;
   userId: number;
+}
+
+export interface CreateBudgetCategoryData {
+  budgetId: number;
+  categoryId: number;
+}
+
+export interface CreateBudgetAccountData {
+  budgetId: number;
+  accountId: number;
+}
+
+export interface CreateBudgetReportData {
+  budgetId: number;
+  budgetPeriod: BudgetPeriod;
+  budgetPeriodNo: number;
+}
+
+export interface BudgetListMeta {
+  closed: number;
+  running: number;
 }

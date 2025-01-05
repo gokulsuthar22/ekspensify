@@ -1,6 +1,7 @@
 import { PrismaService } from '@/infra/persistence/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import {
+  BudgetListMeta,
   BudgetWhere,
   CreateBudgetData,
   FilterBudgetWhere,
@@ -21,30 +22,38 @@ export class BudgetRepository {
     limit: true,
     spent: true,
     userId: true,
-    accountIds: true,
-    categoryIds: true,
     reportId: true,
     period: true,
     periodNo: true,
     type: true,
+    status: true,
     startDate: true,
     endDate: true,
     createdAt: true,
     updatedAt: true,
-    accounts: {
+    budgetAccounts: {
       select: {
-        id: true,
-        name: true,
-        icon: true,
+        account: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            balance: true,
+          },
+        },
       },
     },
-    categories: {
+    budgetCategories: {
       select: {
-        id: true,
-        name: true,
-        icon: {
+        category: {
           select: {
-            path: true,
+            id: true,
+            name: true,
+            icon: {
+              select: {
+                path: true,
+              },
+            },
           },
         },
       },
@@ -56,7 +65,14 @@ export class BudgetRepository {
   }
 
   async create(data: CreateBudgetData) {
-    const budget = await this.Budget.create({ data, select: this.select });
+    const budget = await this.Budget.create({
+      data: {
+        ...data,
+        budgetAccounts: { createMany: { data: data.budgetAccounts } },
+        budgetCategories: { createMany: { data: data.budgetCategories } },
+      },
+      select: this.select,
+    });
     return budget;
   }
 
@@ -91,7 +107,11 @@ export class BudgetRepository {
   }
 
   async findOneAndUpdate(where: BudgetWhere, data: UpdateBudgetData) {
-    const budget = await this.Budget.update({ where, data });
+    const budget = await this.Budget.update({
+      where,
+      data,
+      select: this.select,
+    });
     return budget;
   }
 
@@ -101,11 +121,32 @@ export class BudgetRepository {
   }
 
   async findMany(where?: FilterBudgetWhere) {
-    const budgets = await this.paginationService.paginate<Budget>(this.Budget, {
-      where,
-      select: this.select,
-      orderBy: { createdAt: 'desc' },
+    const result = await this.Budget.groupBy({
+      by: ['type', 'status'], // Group by 'type' and 'status'
+      where: { userId: where.userId },
+      _count: {
+        id: true, // Count based on the 'id'
+      },
     });
+
+    // Extract counts from the grouped result
+    const counts = {
+      closed: result.find((item) => item.status === 'CLOSED')?._count.id || 0,
+      running: result.find((item) => item.status === 'RUNNING')?._count.id || 0,
+    };
+
+    const budgets = await this.paginationService.paginate<
+      Budget,
+      BudgetListMeta
+    >(
+      this.Budget,
+      {
+        where,
+        select: this.select,
+        orderBy: { createdAt: 'desc' },
+      },
+      counts,
+    );
     return budgets;
   }
 
@@ -122,8 +163,8 @@ export class BudgetRepository {
         OR: [
           { endDate: { gte: date } },
           { endDate: null },
-          { accountIds: { has: accountId } },
-          { categoryIds: { has: categoryId } },
+          { budgetCategories: { some: { id: categoryId } } },
+          { budgetAccounts: { some: { id: accountId } } },
         ],
       },
     });

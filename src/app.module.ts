@@ -17,9 +17,22 @@ import { CustomCategoryIconModule } from '@/modules/custom-category-icons/custom
 import { BudgetModule } from './modules/budget/budget.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './common/services/corn.service';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import * as moment from 'moment';
+
+moment.updateLocale('en', {
+  week: {
+    dow: 7,
+  },
+});
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public'),
+      serveRoot: '/',
+    }),
     CommonModule,
     ConfigModule.forRoot({
       load: [configuration],

@@ -17,10 +17,11 @@ export class PaginationService {
    * @param model - The actuall Prisma model (e.g., prisma.user) for which to paginate data.
    * @returns A paginated result containing items, pagination details, and total count.
    */
-  async paginate<T>(
+  async paginate<T, U = any>(
     model: any,
     payload: PaginatePayload,
-  ): Promise<PaginatedResult<T>> {
+    meta?: U,
+  ): Promise<PaginatedResult<T, U>> {
     let { select, orderBy, where, include } = payload;
 
     // Parse's into int
@@ -54,6 +55,6 @@ export class PaginationService {
     const prev = page > 1 ? page - 1 : null;
 
     // Return paginated result with metadata and items
-    return { limit, next, offset, prev, total, items };
+    return { limit, next, offset, prev, meta, total, items };
   }
 }

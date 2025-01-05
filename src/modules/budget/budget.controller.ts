@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -33,14 +34,17 @@ export class BudgetController {
   constructor(private budgetService: BudgetService) {}
 
   @Get()
-  @Roles(Role.USER)
+  @Roles(Role.USER, Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Serialize(BudgetPaginatedResponseDto)
   findMany(
     @CurrentUser() user: any,
     @Query() query: BudgetPaginationParamsDto,
   ) {
-    return this.budgetService.findMany({ ...query, userId: user.id });
+    return this.budgetService.findMany({
+      ...query,
+      userId: user.role != 'ADMIN' ? user.id : undefined,
+    });
   }
 
   @Get(':id/reports/:reportId/transactions')
@@ -76,6 +80,29 @@ export class BudgetController {
   @Serialize(BudgetDto)
   create(@CurrentUser() user: any, @Body() data: CreateBudgetDto) {
     return this.budgetService.create({ ...data, userId: user.id });
+  }
+
+  @Get(':id')
+  @Roles(Role.USER, Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(BudgetDto)
+  find(@CurrentUser() user: any, @Param('id', ParseIntPipe) id: number) {
+    return this.budgetService.findOne({ id, userId: user.id });
+  }
+
+  @Patch(':id')
+  @Roles(Role.USER, Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(BudgetDto)
+  update(
+    @CurrentUser() user: any,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: any,
+  ) {
+    return this.budgetService.update(
+      { id, userId: user.id },
+      { status: data.status },
+    );
   }
 
   @Delete(':id')

@@ -98,11 +98,11 @@ model Transaction {
   updatedAt    DateTime  @updatedAt @map("updated_at")
   deletedAt    DateTime? @map("deleted_at")
 
-  attachment         Media?              @relation(fields: [attachmentId], references: [id])
-  user               User?               @relation(fields: [userId], references: [id])
-  account            Account?            @relation(fields: [accountId], references: [id])
-  category           Category?           @relation(fields: [categoryId], references: [id])
-  budgetTransactions BudgetTransaction[]
+  attachment        Media?              @relation(fields: [attachmentId], references: [id])
+  user              User?               @relation(fields: [userId], references: [id])
+  account           Account?            @relation(fields: [accountId], references: [id])
+  category          Category?           @relation(fields: [categoryId], references: [id])
+  BudgetTransaction BudgetTransaction[]
 
   @@map("transactions")
 }
@@ -119,10 +119,10 @@ model Category {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  user         User?         @relation(fields: [userId], references: [id])
-  icon         Media?        @relation(fields: [iconId], references: [id])
-  transactions Transaction[]
-  budgets      Budget[]
+  user           User?            @relation(fields: [userId], references: [id])
+  icon           Media?           @relation(fields: [iconId], references: [id])
+  transactions   Transaction[]
+  BudgetCategory BudgetCategory[]
 
   @@map("categories")
 }
@@ -144,9 +144,9 @@ model Account {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  user         User          @relation(fields: [userId], references: [id])
+  user         User           @relation(fields: [userId], references: [id])
   transactions Transaction[]
-  budgets      Budget[]
+  BudgetAcount BudgetAcount[]
 
   @@map("accounts")
 }
@@ -176,29 +176,55 @@ enum BudgetPeriod {
   YEARLY
 }
 
-model Budget {
-  id          Int          @id @default(autoincrement())
-  limit       Decimal      @map("limit")
-  spent       Decimal?     @default(0) @map("spent")
-  userId      Int          @map("user_id")
-  reportId    Int?         @map("report_id")
-  accountIds  Int[]        @map("account_ids")
-  categoryIds Int[]        @map("category_ids")
-  periodNo    Int          @default(1) @map("period_no")
-  period      BudgetPeriod @map("period")
-  type        BudgetType   @map("type")
-  startDate   DateTime     @map("start_date")
-  endDate     DateTime?    @map("end_date")
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+enum BudgetStatus {
+  RUNNING
+  CLOSED
+}
 
-  user         User?               @relation(fields: [userId], references: [id])
-  report       BudgetReport?       @relation(fields: [reportId], references: [id])
-  accounts     Account[]
-  categories   Category[]
-  transactions BudgetTransaction[]
+model Budget {
+  id        Int           @id @default(autoincrement())
+  limit     Decimal       @map("limit")
+  spent     Decimal?      @default(0) @map("spent")
+  userId    Int           @map("user_id")
+  reportId  Int?          @map("report_id")
+  periodNo  Int?          @default(1) @map("period_no")
+  period    BudgetPeriod  @map("period")
+  type      BudgetType    @map("type")
+  status    BudgetStatus? @default(RUNNING) @map("status")
+  startDate DateTime      @map("start_date")
+  endDate   DateTime?     @map("end_date")
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  user               User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  report             BudgetReport?       @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  budgetCategories   BudgetCategory[]
+  budgetAccounts     BudgetAcount[]
+  budgetTransactions BudgetTransaction[]
 
   @@map("budgets")
+}
+
+model BudgetCategory {
+  id         Int @id @default(autoincrement())
+  budgetId   Int @map("budget_id")
+  categoryId Int @map("category_id")
+
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  budget   Budget?   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  @@map("budget_categories")
+}
+
+model BudgetAcount {
+  id        Int @id @default(autoincrement())
+  budgetId  Int @map("budget_id")
+  accountId Int @map("category_id")
+
+  account Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  budget  Budget?  @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  @@map("budget_accounts")
 }
 
 model BudgetTransaction {
@@ -209,23 +235,25 @@ model BudgetTransaction {
   amount        Decimal  @map("amount")
   createdAt     DateTime @default(now()) @map("created_at")
 
-  budget      Budget?       @relation(fields: [budgetId], references: [id])
-  transaction Transaction?  @relation(fields: [transactionId], references: [id])
-  report      BudgetReport? @relation(fields: [reportId], references: [id])
+  budget      Budget?       @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  transaction Transaction?  @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  report      BudgetReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   @@map("budget_transactions")
 }
 
 model BudgetReport {
-  id              Int                 @id @default(autoincrement())
-  budgetId        Int                 @map("budget_id")
-  amount          Decimal             @map("amount")
-  periodNo        Int                 @map("period_no")
-  periodStartDate DateTime            @map("period_start_date")
-  periodEndDate   DateTime            @map("period_end_date")
-  createdAt       DateTime            @default(now()) @map("created_at")
-  transactions    BudgetTransaction[]
-  budgets         Budget[]
+  id                Int      @id @default(autoincrement())
+  budgetId          Int      @map("budget_id")
+  amount            Decimal? @default(0) @map("amount")
+  periodNo          Int      @map("period_no")
+  totalTransactions Int?     @default(0) @map("total_transactions")
+  periodStartDate   DateTime @map("period_start_date")
+  periodEndDate     DateTime @map("period_end_date")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  budget             Budget[]
+  budgetTransactions BudgetTransaction[]
 
   @@map("budget_reports")
 }

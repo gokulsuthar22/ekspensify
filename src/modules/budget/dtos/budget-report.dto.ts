@@ -9,6 +9,10 @@ export class BudgetReportDto {
   @Type(() => Number)
   amount: number;
 
+  @Expose({ name: 'totalTransactions' })
+  @Type(() => Number)
+  total_transactions: number;
+
   @Expose({ name: 'periodNo' })
   period_no: number;
 
@@ -17,8 +21,4 @@ export class BudgetReportDto {
 
   @Expose({ name: 'periodEndDate' })
   period_end_date: string;
-
-  @Expose()
-  @Type(() => TransactionDto)
-  transactions: TransactionDto[];
 }

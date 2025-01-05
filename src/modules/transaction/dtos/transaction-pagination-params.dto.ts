@@ -70,9 +70,9 @@ export class TransactionPaginationParamsDto extends PaginationParamsDto {
     if (!key) return;
     if (key.startsWith('-')) {
       obj.sort = obj.sort.replace(/\-/g, '');
-      return { [obj.sort]: 'desc' };
+      return { [obj.sort.replace('_at', 'At')]: 'desc' };
     } else {
-      return { [obj?.sort]: 'asc' };
+      return { [obj.sort.replace('_at', 'At')]: 'asc' };
     }
   })
   @IsOptional()

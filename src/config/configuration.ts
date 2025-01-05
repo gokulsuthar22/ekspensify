@@ -37,4 +37,10 @@ export default () => ({
       '707bed4bf1eb44dd5a093f5bded06082fbb7ffc5df993c411f42a7177f',
     expiresIn: process.env.JWT_EXPIRES_IN || '90d',
   },
+
+  oneSignal: {
+    appId: process.env.ONESIGNAL_APP_ID,
+    apiKey: process.env.ONESIGNAL_API_KEY,
+    baseUrl: process.env.ONESIGNAL_API_BASE_URL,
+  },
 });

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { BudgetRepository } from './budget.repository';
 import {
   BudgetWhere,
@@ -8,7 +8,7 @@ import {
 } from './budget.interface';
 import { BudgetReportRepository } from './repositories/budget-report.repository';
 import { BudgetTransactionRepository } from './repositories/budget-transaction.repository';
-import * as moment from 'moment';
+import { AppHttpException } from '@/core/exceptions/app-http.exception';
 
 @Injectable()
 export class BudgetService {
@@ -20,34 +20,41 @@ export class BudgetService {
 
   async create(data: Omit<CreateBudgetData, 'reportId'>) {
     let budget = await this.budgetRepo.create(data);
-    // week, year, quater, month
-    const currentDate = moment().utc();
-    const periodUnit = budget.period
-      .toLowerCase()
-      .replace('ly', '') as moment.unitOfTime.DurationConstructor;
-    const periodStartDate = currentDate.toDate();
-    const periodEndDate = currentDate.clone().add(1, periodUnit).toDate();
-    // create budget report for current period
+
     const report = await this.budgetReportRepo.create({
       budgetId: budget.id,
-      amount: 0,
-      periodNo: budget.periodNo,
-      periodStartDate: periodStartDate,
-      periodEndDate: periodEndDate,
+      budgetPeriod: budget.period,
+      budgetPeriodNo: budget.periodNo,
     });
+
     budget = await this.budgetRepo.updateById(budget.id, {
       reportId: report.id,
     });
+
     return budget;
   }
 
   async update(where: BudgetWhere, data?: UpdateBudgetData) {
     const budget = await this.budgetRepo.findOneAndUpdate(where, data);
+    if (!budget) {
+      throw new AppHttpException(HttpStatus.NOT_FOUND, 'Budget not found');
+    }
     return budget;
   }
 
   async delete(where: BudgetWhere) {
     const budget = await this.budgetRepo.findOneAndDelete(where);
+    if (!budget) {
+      throw new AppHttpException(HttpStatus.NOT_FOUND, 'Budget not found');
+    }
+    return budget;
+  }
+
+  async findOne(where: BudgetWhere) {
+    const budget: any = await this.budgetRepo.findOne(where);
+    if (!budget) {
+      throw new AppHttpException(HttpStatus.NOT_FOUND, 'Budget not found');
+    }
     return budget;
   }
 
@@ -66,10 +73,6 @@ export class BudgetService {
 
   async findManyBudgetReports(where?: any) {
     const budgetReports = await this.budgetReportRepo.findMany(where);
-    budgetReports.items = budgetReports.items.map((r: any) => {
-      r.transactions = r.transactions.map((t: any) => t.transaction);
-      return r;
-    });
     return budgetReports;
   }
 }

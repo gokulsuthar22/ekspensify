@@ -15,24 +15,36 @@ export class CronService {
       `Daily budget processing started at ${new Date().toISOString()}`,
     );
 
-    const currentDate = moment().utc();
+    const currentDate = moment();
 
-    const isWeekend = currentDate.isoWeekday() === 7;
-    const isMonthEnd = currentDate.isSame(
-      currentDate.clone().endOf('month'),
+    const isWeekend = currentDate.weekday() === 0;
+
+    const isMonthStart = currentDate.isSame(
+      currentDate.clone().startOf('month'),
       'day',
     );
-    const isQuarterEnd = currentDate.isSame(
-      currentDate.clone().endOf('quarter'),
+
+    const isQuarterStart = currentDate.isSame(
+      currentDate.clone().startOf('quarter'),
       'day',
     );
-    const isYearEnd = currentDate.isSame(
-      currentDate.clone().endOf('year'),
+
+    const isYearStart = currentDate.isSame(
+      currentDate.clone().startOf('year'),
       'day',
     );
 
     const recurringBudgets = await this.prismaService.budget.findMany({
-      where: { type: 'RECURRING' },
+      where: { type: 'RECURRING', status: 'RUNNING' },
+    });
+
+    await this.prismaService.budget.updateMany({
+      where: {
+        type: 'EXPIRING',
+        status: 'RUNNING',
+        endDate: { lte: currentDate.toDate() },
+      },
+      data: { status: 'CLOSED' },
     });
 
     this.logger.debug(`${recurringBudgets.length} recurring budgets found`);
@@ -44,9 +56,9 @@ export class CronService {
       const shouldUpdate = this.shouldUpdateBudget(
         budget.period,
         isWeekend,
-        isMonthEnd,
-        isQuarterEnd,
-        isYearEnd,
+        isMonthStart,
+        isQuarterStart,
+        isYearStart,
       );
 
       if (shouldUpdate) {
@@ -75,7 +87,7 @@ export class CronService {
     }
 
     // Increment periodNo for applicable budgets
-    if (budgetIdsToUpdate.length > 0) {
+    if (budgetIdsToUpdate.length) {
       await this.prismaService.budget.updateMany({
         where: { id: { in: budgetIdsToUpdate } },
         data: { periodNo: { increment: 1 } },
@@ -92,9 +104,9 @@ export class CronService {
   private shouldUpdateBudget(
     period: string,
     isWeekend: boolean,
-    isMonthEnd: boolean,
-    isQuarterEnd: boolean,
-    isYearEnd: boolean,
+    isMonthStart: boolean,
+    isQuarterStart: boolean,
+    isYearStart: boolean,
   ): boolean {
     switch (period) {
       case 'DAILY':
@@ -102,11 +114,11 @@ export class CronService {
       case 'WEEKLY':
         return isWeekend;
       case 'MONTHLY':
-        return isMonthEnd;
+        return isMonthStart;
       case 'QUARTERLY':
-        return isQuarterEnd;
+        return isQuarterStart;
       case 'YEARLY':
-        return isYearEnd;
+        return isYearStart;
       default:
         this.logger.error(`Unknown budget period: ${period}`);
         return false;
@@ -117,11 +129,22 @@ export class CronService {
     period: string,
     currentDate: moment.Moment,
   ): { periodStartDate: Date; periodEndDate: Date } {
-    const periodUnit = period
-      .toLowerCase()
-      .replace('ly', '') as moment.unitOfTime.DurationConstructor;
-    const periodStartDate = currentDate.toDate();
-    const periodEndDate = currentDate.clone().add(1, periodUnit).toDate();
+    let periodUnit = period.toLowerCase().replace('ly', '');
+
+    if (periodUnit === 'dai') {
+      periodUnit = 'day';
+    }
+
+    let periodStartDate = currentDate.clone().toDate();
+
+    let periodEndDate = currentDate
+      .endOf(periodUnit as moment.unitOfTime.DurationConstructor)
+      .utc()
+      .toDate();
+
+    if (periodUnit === 'day') {
+      periodEndDate = periodStartDate;
+    }
 
     return { periodStartDate, periodEndDate };
   }
