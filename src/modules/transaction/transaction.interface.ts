@@ -58,3 +58,14 @@ export interface UploadAttachmentData {
   image: Express.Multer.File;
   userId: number;
 }
+
+export type StatementFileFormat = 'PDF' | 'CSV';
+
+export interface RequestStatementData {
+  start: string;
+  end: string;
+  userId: number;
+  email: string;
+  name: string;
+  format: StatementFileFormat;
+}

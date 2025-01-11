@@ -21,22 +21,14 @@ import { NotificationService } from '@/shared/notification/notification.service'
 @Controller('users/me')
 @UseGuards(AuthGuard, RoleGuard)
 export class MeController {
-  constructor(
-    private userService: UserService,
-    private no: NotificationService,
-  ) {}
+  constructor(private userService: UserService) {}
 
   @Get()
   @Roles(Role.USER, Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Serialize(UserDto)
   getMe(@CurrentUser() user: any) {
-    // this.no.notifyUser({
-    //   userId: [user.id],
-    //   content: 'Hey ' + user.name,
-    //   heading: 'Test Notification',
-    // });
-    return user;
+    return this.userService.findById(user.id);
   }
 
   @Patch()

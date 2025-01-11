@@ -29,6 +29,7 @@ import { UploadAttachmentResponseDto } from './dtos/upload-attachment-response.d
 import { TransactionAttachmentValidationPipe } from './pipes/trasaction-attachment-validation.pipe';
 import { TransactionPaginatedResponseDto } from './dtos/transaction-paginatated-response.dto';
 import { TransactionPaginationParamsDto } from './dtos/transaction-pagination-params.dto';
+import { RequestStatementDto } from './dtos/request-statement.dto';
 
 @Controller('transactions')
 @UseGuards(AuthGuard, RoleGuard)
@@ -71,6 +72,24 @@ export class TransactionController {
     @CurrentUser() user: any,
   ) {
     return this.transactionService.uploadAttachment({ image, userId: user.id });
+  }
+
+  @Post('request-statement')
+  @Roles(Role.USER)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(UploadAttachmentResponseDto)
+  requestStatement(
+    @CurrentUser() user: any,
+    @Body() data: RequestStatementDto,
+  ) {
+    return this.transactionService.requestStatement({
+      start: data.start,
+      end: data.end,
+      userId: user.id,
+      format: data.format,
+      email: user.email,
+      name: user.name,
+    });
   }
 
   @Patch(':id')

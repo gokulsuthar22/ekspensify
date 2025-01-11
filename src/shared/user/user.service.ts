@@ -9,7 +9,9 @@ export class UserService {
   constructor(private userRepo: UserRepository) {}
 
   async findById(id: number) {
-    const user = await this.userRepo.findById(id);
+    const user = await this.userRepo.findById(id, {
+      _count: { select: { accounts: true } },
+    });
     if (!user) {
       throw new AppHttpException(HttpStatus.NOT_FOUND, 'User not found');
     }

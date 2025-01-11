@@ -228,4 +228,13 @@ export class TransactionRepository {
     );
     return transactions;
   }
+
+  async findManyWithoutPagination(where?: FilterTransactionWhere) {
+    const transactions = await this.Transaction.findMany({
+      where,
+      select: this.select,
+      orderBy: { createdAt: 'desc' },
+    });
+    return transactions;
+  }
 }

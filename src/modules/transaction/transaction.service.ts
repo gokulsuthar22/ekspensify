@@ -4,6 +4,7 @@ import {
   CreateTransactionData,
   FilterTransactionWhere,
   handleBudgetTransactionProcessingData,
+  RequestStatementData,
   TransactionWhere,
   UpdateTransactionData,
   UploadAttachmentData,
@@ -14,6 +15,13 @@ import { AwsS3Service } from '@/helper/media/services/aws-s3.service';
 import { BudgetRepository } from '../budget/budget.repository';
 import { BudgetTransactionRepository } from '../budget/repositories/budget-transaction.repository';
 import { BudgetReportRepository } from '../budget/repositories/budget-report.repository';
+import { MailService } from '@/helper/mail/mail.service';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as hbs from 'handlebars';
+import * as moment from 'moment';
+import * as json2csv from 'json2csv';
+import puppeteer from 'puppeteer';
 
 @Injectable()
 export class TransactionService {
@@ -24,6 +32,7 @@ export class TransactionService {
     private budgetTransactionRepo: BudgetTransactionRepository,
     private mediaRepo: MediaRepository,
     private awsS3Service: AwsS3Service,
+    private mailService: MailService,
   ) {}
 
   private async validateAttachment(id: number) {
@@ -204,5 +213,94 @@ export class TransactionService {
       this.awsS3Service.upload(data.image.buffer, name, data.image.mimetype),
     ]);
     return attachment;
+  }
+
+  async requestStatement(data: RequestStatementData) {
+    const transactions = await this.transactionRepo.findManyWithoutPagination({
+      createdAt: { gte: new Date(data.start), lte: new Date(data.end) } as any,
+      userId: data.userId,
+    });
+
+    if (!transactions.length) {
+      throw new AppHttpException(
+        HttpStatus.NOT_FOUND,
+        'No transactions found for the given period',
+      );
+    }
+
+    const preparedTransactions =
+      this.prepareTransactionsForStatement(transactions);
+
+    if (data.format === 'PDF') {
+      var fileBuffer = await this.generateStatementPdf(preparedTransactions);
+    }
+
+    if (data.format === 'CSV') {
+      var fileBuffer = await this.generateStatementCsv(preparedTransactions);
+    }
+
+    await this.mailService.sendStatementMail(data.email, {
+      file: fileBuffer,
+      type: data.format,
+      name: data.name,
+    });
+  }
+
+  async generateStatementPdf(transactions: any[]): Promise<Buffer> {
+    const templatePath = path.join(
+      process.cwd(),
+      'views/transactions-list.hbs',
+    );
+    const source = fs.readFileSync(templatePath, 'utf-8');
+
+    // Compile the Handlebars template
+    const template = hbs.compile(source);
+
+    const html = template({ transactions });
+
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    // Set the content of the page to the provided HTML
+    await page.setContent(html);
+
+    // Generate the PDF and save it to the provided output path
+    const pdfBuffer = Buffer.from((await page.pdf({ format: 'A4' })).buffer);
+
+    await browser.close();
+
+    return pdfBuffer;
+  }
+
+  async generateStatementCsv(transactions: any[]): Promise<Buffer> {
+    const fields = [
+      { label: 'Sr. No', value: 'srNo' },
+      { label: 'Amount', value: 'amount' },
+      { label: 'Type', value: 'type' },
+      { label: 'Note', value: 'note' },
+      { label: 'Category', value: 'category' },
+      { label: 'Account', value: 'account' },
+      { label: 'Date', value: 'date' },
+    ];
+
+    const json2csvParser = new json2csv.Parser({ fields });
+
+    const csvBuffer = Buffer.from(json2csvParser.parse(transactions));
+
+    return csvBuffer;
+  }
+
+  prepareTransactionsForStatement(transactions: any[]) {
+    return transactions.map((t, i) => {
+      return {
+        srNo: i + 1,
+        amount: t.amount,
+        type: t.type,
+        note: t.note ? t.note : '-',
+        category: t.category.name,
+        account: t.account.name,
+        date: moment(t.createdAt).format('DD-MM-YYYY'),
+      };
+    });
   }
 }
