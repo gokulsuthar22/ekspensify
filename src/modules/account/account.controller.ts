@@ -22,6 +22,8 @@ import { CurrentUser } from '@/core/decorators/current-user.decorator';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 import { ParseIntPipe } from '@/core/pipes/parse-int.pipe';
+import { AccountSummeryResponseDto } from './dtos/account-summary-response.dto';
+import { FilterAccountSummeryDto } from './dtos/filter-account-summary.dto';
 
 @Controller('accounts')
 @UseGuards(AuthGuard, RoleGuard)
@@ -31,10 +33,11 @@ export class AccountController {
   @Get('summary')
   @Roles(Role.USER)
   @HttpCode(HttpStatus.OK)
-  // @Serialize(AccountDto)
-  summary(@CurrentUser() user: any, @Query() query: any) {
+  @Serialize(AccountSummeryResponseDto)
+  summary(@CurrentUser() user: any, @Query() query: FilterAccountSummeryDto) {
     return this.accountService.summary(user.id, query.period);
   }
+
   @Post()
   @Roles(Role.USER)
   @HttpCode(HttpStatus.CREATED)

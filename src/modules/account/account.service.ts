@@ -1,6 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { AccountRepository } from './account.repository';
 import {
+  AccountSummaryPeriod,
   AccountWhere,
   CreateAccountData,
   FilterAccountWhere,
@@ -75,7 +76,7 @@ export class AccountService {
     return accounts;
   }
 
-  async summary(userId: number, period: any) {
+  async summary(userId: number, period: AccountSummaryPeriod) {
     const summary = await this.accountRepo.summary(userId, period);
     return summary;
   }

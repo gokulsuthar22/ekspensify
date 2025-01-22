@@ -2,6 +2,7 @@ import { PrismaService } from '@/infra/persistence/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { UtilService } from '@/common/services/util.service';
 import {
+  AccountSummaryPeriod,
   AccountWhere,
   CreateAccountData,
   FilterAccountWhere,
@@ -142,10 +143,7 @@ export class AccountRepository
     return wallet;
   }
 
-  async summary(
-    userId: number,
-    period: 'THIS_WEEK' | 'THIS_MONTH' | 'THIS_YEAR' = 'THIS_WEEK',
-  ) {
+  async summary(userId: number, period: AccountSummaryPeriod = 'THIS_WEEK') {
     const momentTimeUnit = period.toLowerCase().replace('this_', '') as any;
 
     const startDate = moment().utc().startOf(momentTimeUnit).toDate();

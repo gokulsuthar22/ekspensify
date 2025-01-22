@@ -29,3 +29,5 @@ export interface AccountWhere {
 export interface FilterAccountWhere {
   userId?: number;
 }
+
+export type AccountSummaryPeriod = 'THIS_WEEK' | 'THIS_MONTH' | 'THIS_YEAR';
