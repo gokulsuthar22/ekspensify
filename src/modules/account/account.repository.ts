@@ -10,6 +10,7 @@ import {
 } from './account.interface';
 import { Account, Prisma } from '@prisma/client';
 import { Repository } from '@/common/types/repository.interface';
+import * as moment from 'moment';
 
 @Injectable()
 export class AccountRepository
@@ -139,5 +140,44 @@ export class AccountRepository
       },
     });
     return wallet;
+  }
+
+  async summary(
+    userId: number,
+    period: 'THIS_WEEK' | 'THIS_MONTH' | 'THIS_YEAR' = 'THIS_WEEK',
+  ) {
+    const momentTimeUnit = period.toLowerCase().replace('this_', '') as any;
+
+    const startDate = moment().utc().startOf(momentTimeUnit).toDate();
+    const endDate = moment().utc().toDate();
+
+    const transactions = await this.prismaService.transaction.groupBy({
+      by: ['type'],
+      _sum: {
+        amount: true,
+      },
+      where: {
+        userId,
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+    });
+
+    let credit = 0;
+    let debit = 0;
+
+    transactions.forEach((transaction) => {
+      if (transaction.type === 'CREDIT') {
+        credit = +transaction._sum.amount || 0;
+      } else if (transaction.type === 'DEBIT') {
+        debit = +transaction._sum.amount || 0;
+      }
+    });
+
+    const total = credit + debit;
+
+    return { total, credit, debit };
   }
 }

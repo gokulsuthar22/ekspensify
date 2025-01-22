@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@/core/guards/auth.guard';
@@ -27,6 +28,13 @@ import { ParseIntPipe } from '@/core/pipes/parse-int.pipe';
 export class AccountController {
   constructor(private accountService: AccountService) {}
 
+  @Get('summary')
+  @Roles(Role.USER)
+  @HttpCode(HttpStatus.OK)
+  // @Serialize(AccountDto)
+  summary(@CurrentUser() user: any, @Query() query: any) {
+    return this.accountService.summary(user.id, query.period);
+  }
   @Post()
   @Roles(Role.USER)
   @HttpCode(HttpStatus.CREATED)

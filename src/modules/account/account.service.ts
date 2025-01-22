@@ -74,4 +74,9 @@ export class AccountService {
     const accounts = await this.accountRepo.findMany(where);
     return accounts;
   }
+
+  async summary(userId: number, period: any) {
+    const summary = await this.accountRepo.summary(userId, period);
+    return summary;
+  }
 }

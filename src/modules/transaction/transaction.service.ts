@@ -258,7 +258,10 @@ export class TransactionService {
 
     const html = template({ transactions });
 
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+
     const page = await browser.newPage();
 
     // Set the content of the page to the provided HTML
