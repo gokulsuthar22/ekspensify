@@ -9,6 +9,7 @@ export interface GenerateCategorySlug {
 export interface CreateCategoryData {
   name: string;
   iconId: number;
+  icFillColor?: string;
   type?: TxType;
   userId?: number;
 }
@@ -22,6 +23,7 @@ export interface UpdateCategoryData {
   name?: string;
   type?: TxType;
   iconId?: number;
+  icFillColor?: string;
 }
 
 export interface FilterCategoryWhere {

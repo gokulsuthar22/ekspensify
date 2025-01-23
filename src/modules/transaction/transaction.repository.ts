@@ -49,6 +49,7 @@ export class TransactionRepository {
             path: true,
           },
         },
+        icFillColor: true,
       },
     },
     attachment: {

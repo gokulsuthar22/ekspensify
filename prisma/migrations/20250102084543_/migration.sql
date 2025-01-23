@@ -95,6 +95,7 @@ CREATE TABLE "categories" (
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "type" "TxType",
+    "ic_fill_color" TEXT,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -123,6 +124,7 @@ CREATE TABLE "accounts" (
 CREATE TABLE "custom_category_icons" (
     "id" SERIAL NOT NULL,
     "icon_id" INTEGER NOT NULL,
+    "ic_fill_color" TEXT,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,

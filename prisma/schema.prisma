@@ -108,16 +108,17 @@ model Transaction {
 }
 
 model Category {
-  id        Int       @id @default(autoincrement())
-  userId    Int?      @map("user_id")
-  iconId    Int?      @map("icon_id")
-  name      String    @map("name")
-  slug      String    @map("slug")
-  type      TxType?   @map("type")
-  isActive  Boolean   @default(true) @map("is_active")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
+  id          Int       @id @default(autoincrement())
+  userId      Int?      @map("user_id")
+  iconId      Int?      @map("icon_id")
+  name        String    @map("name")
+  slug        String    @map("slug")
+  type        TxType?   @map("type")
+  icFillColor String?   @map("ic_fill_color")
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
 
   user           User?            @relation(fields: [userId], references: [id])
   icon           Media?           @relation(fields: [iconId], references: [id])
@@ -152,13 +153,14 @@ model Account {
 }
 
 model CustomCategoryIcon {
-  id        Int       @id @default(autoincrement())
-  iconId    Int       @map("icon_id")
-  isActive  Boolean   @default(true) @map("is_active")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-  icon      Media?    @relation(fields: [iconId], references: [id])
+  id          Int       @id @default(autoincrement())
+  iconId      Int       @map("icon_id")
+  icFillColor String?   @map("ic_fill_color")
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  icon        Media?    @relation(fields: [iconId], references: [id])
 
   @@map("custom_category_icons")
 }

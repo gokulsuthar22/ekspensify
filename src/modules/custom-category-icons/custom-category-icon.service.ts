@@ -7,12 +7,14 @@ import {
 } from './custom-category-icon.interface';
 import { MediaRepository } from '@/helper/media/media.repository';
 import { AppHttpException } from '@/core/exceptions/app-http.exception';
+import { CategoryService } from '../category/category.service';
 
 @Injectable()
 export class CustomCategoryIconService {
   constructor(
     private mediaRepo: MediaRepository,
     private customCategoryIconRepo: CustomCategoryIconRepository,
+    private categoryService: CategoryService,
   ) {}
 
   private async validateIcon(id: number) {
@@ -33,8 +35,14 @@ export class CustomCategoryIconService {
   }
 
   async create(data: CreateCustomCategoryIconData) {
-    await this.validateIcon(data.iconId);
-    const categoryIcon = await this.customCategoryIconRepo.create(data);
+    const icon = await this.validateIcon(data.iconId);
+    if (!data.icFillColor) {
+      var icFillColor = await this.categoryService.getIcFillColor(icon.path);
+    }
+    const categoryIcon = await this.customCategoryIconRepo.create({
+      ...data,
+      icFillColor: icFillColor || data?.icFillColor,
+    });
     return categoryIcon;
   }
 

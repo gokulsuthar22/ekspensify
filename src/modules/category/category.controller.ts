@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -28,11 +29,20 @@ import { CategoryIconValidationPipe } from './pipes/category-icon-validation.pip
 import { UploadIconResponseDto } from './dtos/upload-icon-response.dto';
 import { CacheInterceptor, CacheKey } from '@nestjs/cache-manager';
 import { CATEGORY_CACHE_KEY } from './category.constants';
+import { CategoryInsightsResponseDto } from './dtos/category-insights-response.dto';
 
 @Controller('categories')
 @UseGuards(AuthGuard, RoleGuard)
 export class CategoryController {
   constructor(private categoryService: CategoryService) {}
+
+  @Get('insights')
+  @Roles(Role.USER)
+  @HttpCode(HttpStatus.OK)
+  @Serialize(CategoryInsightsResponseDto)
+  insights(@CurrentUser() user: any, @Query() query: any) {
+    return this.categoryService.insights(user.id, query.type, query.period);
+  }
 
   @Post()
   @Roles(Role.ADMIN, Role.USER)

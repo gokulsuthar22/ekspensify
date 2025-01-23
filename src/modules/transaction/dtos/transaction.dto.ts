@@ -13,6 +13,7 @@ export class TransactionDto {
       id: obj?.category?.id,
       name: obj?.category?.name,
       icon: obj?.category?.icon?.path,
+      ic_fill_color: obj?.category?.icFillColor,
     };
   })
   category: any;

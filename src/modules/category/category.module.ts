@@ -10,6 +10,6 @@ import { CustomCategoryIconModule } from '@/modules/custom-category-icons/custom
   imports: [UserModule, MediaModule, CustomCategoryIconModule],
   controllers: [CategoryController],
   providers: [CategoryService, CategoryRepository],
-  exports: [CategoryRepository],
+  exports: [CategoryRepository, CategoryService],
 })
 export class CategoryModule {}

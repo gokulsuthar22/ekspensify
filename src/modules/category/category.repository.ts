@@ -9,9 +9,11 @@ import {
   UpdateCategoryData,
 } from './category.interface';
 import { Repository } from '@/common/types/repository.interface';
-import { Category } from '@prisma/client';
+import { Account, Category } from '@prisma/client';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { CATEGORY_CACHE_KEY } from './category.constants';
+import { AccountSummaryPeriod } from '../account/account.interface';
+import * as moment from 'moment';
 
 @Injectable()
 export class CategoryRepository
@@ -132,5 +134,60 @@ export class CategoryRepository
       include: this.include,
     });
     return categories;
+  }
+
+  async insights(
+    userId: number,
+    type: 'CREDIT' | 'DEBIT',
+    period: AccountSummaryPeriod = 'THIS_WEEK',
+  ) {
+    const momentTimeUnit = period.toLowerCase().replace('this_', '') as any;
+
+    const startDate = moment().utc().startOf(momentTimeUnit).toDate();
+    const endDate = moment().utc().toDate();
+
+    const result = await this.prismaService.transaction.groupBy({
+      by: ['categoryId'],
+      where: {
+        userId,
+        deletedAt: null,
+        type,
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    const enrichedResult = await Promise.all(
+      result.map(async (item) => {
+        const category = await this.prismaService.category.findUnique({
+          where: { id: item.categoryId },
+          select: {
+            id: true,
+            name: true,
+            icon: {
+              select: { path: true },
+            },
+            icFillColor: true,
+          },
+        });
+
+        return {
+          category: {
+            id: category?.id,
+            name: category?.name,
+            icon: { path: category?.icon?.path },
+            icFillColor: category?.icFillColor,
+          },
+          amount: +item._sum.amount,
+        };
+      }),
+    );
+
+    return enrichedResult;
   }
 }

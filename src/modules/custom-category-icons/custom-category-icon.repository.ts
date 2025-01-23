@@ -24,6 +24,7 @@ export class CustomCategoryIconRepository {
     id: true,
     iconId: true,
     isActive: true,
+    icFillColor: true,
     icon: {
       select: {
         path: true,

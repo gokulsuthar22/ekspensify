@@ -37,4 +37,19 @@ export class UtilService {
       strict: true,
     });
   };
+
+  /**
+   * Converts RGB color values to HEX format.
+   *
+   * @param {number} r - The red component of the color (0-255).
+   * @param {number} g - The green component of the color (0-255).
+   * @param {number} b - The blue component of the color (0-255).
+   * @returns {string} The HEX representation of the RGB color (e.g., "#4287F5").
+   */
+  rgbToHex(r: number, g: number, b: number): string {
+    // Combine the RGB values into a single number using bitwise operations
+    // Convert the number to a hexadecimal string and extract the last 6 characters
+    // Use .toUpperCase() to ensure the HEX code is in uppercase format
+    return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).toUpperCase()}`;
+  }
 }

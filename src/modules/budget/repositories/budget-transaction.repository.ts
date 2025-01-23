@@ -40,6 +40,7 @@ export class BudgetTransactionRepository {
             path: true,
           },
         },
+        icFillColor: true,
       },
     },
     attachment: {

@@ -1,5 +1,5 @@
 import { Expose, Type } from 'class-transformer';
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsHexColor, IsOptional } from 'class-validator';
 
 export class UpdateCustomCategoryIconDto {
   @Expose({ name: 'is_active' })
@@ -7,4 +7,9 @@ export class UpdateCustomCategoryIconDto {
   @Type(() => Boolean)
   @IsOptional()
   isActive?: boolean;
+
+  @Expose({ name: 'ic_fill_color' })
+  @IsHexColor({ message: '`ic_fill_color` must be a valid color hex' })
+  @IsOptional()
+  icFillColor?: string;
 }

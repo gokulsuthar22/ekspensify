@@ -2,6 +2,7 @@ import { TxType } from '@prisma/client';
 import { Expose, Type } from 'class-transformer';
 import {
   IsBoolean,
+  IsHexColor,
   IsIn,
   IsNotEmpty,
   IsNumber,
@@ -32,4 +33,9 @@ export class CreateCategoryDto {
   @Type(() => Boolean)
   @IsOptional()
   isActive?: boolean;
+
+  @Expose({ name: 'ic_fill_color' })
+  @IsHexColor({ message: '`ic_fill_color` must be a valid color hex' })
+  @IsOptional()
+  icFillColor?: string;
 }

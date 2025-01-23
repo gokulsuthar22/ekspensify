@@ -11,6 +11,10 @@ import { AppHttpException } from '@/core/exceptions/app-http.exception';
 import { MediaRepository } from '@/helper/media/media.repository';
 import { AwsS3Service } from '@/helper/media/services/aws-s3.service';
 import { CustomCategoryIconRepository } from '@/modules/custom-category-icons/custom-category-icon.repository';
+import { UtilService } from '@/common/services/util.service';
+
+import * as sharp from 'sharp';
+import { AccountSummaryPeriod } from '../account/account.interface';
 
 @Injectable()
 export class CategoryService {
@@ -19,6 +23,7 @@ export class CategoryService {
     private mediaRepo: MediaRepository,
     private customCategoryIconRepo: CustomCategoryIconRepository,
     private awsS3Service: AwsS3Service,
+    private utilService: UtilService,
   ) {}
 
   private async validateIcon(id: number) {
@@ -54,9 +59,35 @@ export class CategoryService {
     return isCustomIcon ? true : false;
   }
 
+  async getIcFillColor(iconPath: string) {
+    const iconBuffer = await (await fetch(iconPath)).arrayBuffer();
+    const iconColor = await sharp(iconBuffer)
+      .ensureAlpha()
+      .toColourspace('srgb')
+      .resize(1, 1, { fit: 'contain' })
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const r = iconColor.data[0],
+      g = iconColor.data[1],
+      b = iconColor.data[2];
+    const icFillColor = this.utilService.rgbToHex(r, g, b);
+    return icFillColor;
+  }
+
+  async insights(userId: number, type: any, period: AccountSummaryPeriod) {
+    const insights = await this.categoryRepo.insights(userId, type, period);
+    return insights;
+  }
+
   async create(data: CreateCategoryData) {
     const icon = await this.validateIcon(data.iconId);
-    const category = await this.categoryRepo.create(data);
+    if (!data.icFillColor) {
+      var icFillColor = await this.getIcFillColor(icon.path);
+    }
+    const category = await this.categoryRepo.create({
+      ...data,
+      icFillColor: icFillColor || data?.icFillColor,
+    });
     const isCustomIcon = await this.isCustomIcon(icon.id);
     if (!isCustomIcon) {
       await this.mediaRepo.findByIdAndUpdate(icon.id, {
@@ -73,6 +104,9 @@ export class CategoryService {
     }
     if (data.iconId) {
       const icon = await this.validateIcon(data.iconId);
+      if (!data.icFillColor) {
+        var icFillColor = await this.getIcFillColor(icon.path);
+      }
       const isCustomIcon = await this.isCustomIcon(icon.id);
       if (!isCustomIcon) {
         await this.mediaRepo.findByIdAndUpdate(icon.id, {
@@ -81,7 +115,10 @@ export class CategoryService {
         });
       }
     }
-    const category = await this.categoryRepo.findOneAndUpdate(where, data);
+    const category = await this.categoryRepo.findOneAndUpdate(where, {
+      ...data,
+      icFillColor: icFillColor || data?.icFillColor,
+    });
     if (!category) {
       throw new AppHttpException(
         HttpStatus.NOT_FOUND,

@@ -38,6 +38,7 @@ export class BudgetReportRepository {
             path: true,
           },
         },
+        icFillColor: true,
       },
     },
     attachment: {

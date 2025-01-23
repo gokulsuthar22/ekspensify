@@ -17,6 +17,9 @@ export class CategoryDto {
   @Transform(({ obj }) => obj?.icon?.path)
   icon?: string;
 
+  @Expose({ name: 'icFillColor' })
+  ic_fill_color?: string;
+
   @Expose({ name: 'userId' })
   user_id: number;
 

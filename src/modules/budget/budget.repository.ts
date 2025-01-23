@@ -54,6 +54,7 @@ export class BudgetRepository {
                 path: true,
               },
             },
+            icFillColor: true,
           },
         },
       },

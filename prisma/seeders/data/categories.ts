@@ -5,6 +5,7 @@ export const categories = [
     slug: 'accessories-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#EA6E27',
   },
   {
     iconId: 2,
@@ -12,6 +13,7 @@ export const categories = [
     slug: 'bike-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#1590CE',
   },
   {
     iconId: 3,
@@ -19,6 +21,7 @@ export const categories = [
     slug: 'car-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#7F3DFF',
   },
   {
     iconId: 4,
@@ -26,6 +29,7 @@ export const categories = [
     slug: 'clothes-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#F4705B',
   },
   {
     iconId: 5,
@@ -33,6 +37,7 @@ export const categories = [
     slug: 'electricity-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#FD3C4A',
   },
   {
     iconId: 6,
@@ -40,6 +45,7 @@ export const categories = [
     slug: 'entertainment-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#E64D00',
   },
   {
     iconId: 7,
@@ -47,6 +53,7 @@ export const categories = [
     slug: 'fitness-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#5454DC',
   },
   {
     iconId: 8,
@@ -54,6 +61,7 @@ export const categories = [
     slug: 'food-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '',
   },
   {
     iconId: 9,
@@ -61,6 +69,7 @@ export const categories = [
     slug: 'fruits-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#FCAC12',
   },
   {
     iconId: 10,
@@ -68,6 +77,7 @@ export const categories = [
     slug: 'game',
     type: null,
     isActive: true,
+    icFillColor: '#1357BD',
   },
   {
     iconId: 11,
@@ -75,6 +85,7 @@ export const categories = [
     slug: 'groceries-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#F26823',
   },
   {
     iconId: 12,
@@ -82,6 +93,7 @@ export const categories = [
     slug: 'health-care-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#E93E74',
   },
   {
     iconId: 13,
@@ -89,6 +101,7 @@ export const categories = [
     slug: 'domestic-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#00A86B',
   },
   {
     iconId: 14,
@@ -96,6 +109,7 @@ export const categories = [
     slug: 'insurance-credit',
     type: 'CREDIT',
     isActive: true,
+    icFillColor: '#0077FF',
   },
   {
     iconId: 15,
@@ -103,6 +117,7 @@ export const categories = [
     slug: 'invest',
     type: null,
     isActive: true,
+    icFillColor: '#398542',
   },
   {
     iconId: 16,
@@ -110,6 +125,7 @@ export const categories = [
     slug: 'office-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#AA3AFF',
   },
   {
     iconId: 17,
@@ -117,6 +133,7 @@ export const categories = [
     slug: 'personal-care-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#8320D9',
   },
   {
     iconId: 18,
@@ -124,6 +141,7 @@ export const categories = [
     slug: 'refund-credit',
     type: 'CREDIT',
     isActive: true,
+    icFillColor: '#A90909',
   },
   {
     iconId: 19,
@@ -131,6 +149,7 @@ export const categories = [
     slug: 'salary-credit',
     type: 'CREDIT',
     isActive: true,
+    icFillColor: '#45A93C',
   },
   {
     iconId: 20,
@@ -138,6 +157,7 @@ export const categories = [
     slug: 'education-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#FF51C8',
   },
   {
     iconId: 21,
@@ -145,6 +165,7 @@ export const categories = [
     slug: 'subscription-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#EF3E3E',
   },
   {
     iconId: 22,
@@ -152,6 +173,7 @@ export const categories = [
     slug: 'travel-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#42BDFF',
   },
   {
     iconId: 23,
@@ -159,6 +181,7 @@ export const categories = [
     slug: 'water-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#0077FF',
   },
   {
     iconId: 24,
@@ -166,5 +189,6 @@ export const categories = [
     slug: 'shopping-debit',
     type: 'DEBIT',
     isActive: true,
+    icFillColor: '#626CFE',
   },
 ];
