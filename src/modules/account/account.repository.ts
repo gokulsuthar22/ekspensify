@@ -2,7 +2,6 @@ import { PrismaService } from '@/infra/persistence/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { UtilService } from '@/common/services/util.service';
 import {
-  AccountSummaryPeriod,
   AccountWhere,
   CreateAccountData,
   FilterAccountWhere,
@@ -11,7 +10,6 @@ import {
 } from './account.interface';
 import { Account, Prisma } from '@prisma/client';
 import { Repository } from '@/common/types/repository.interface';
-import * as moment from 'moment';
 
 @Injectable()
 export class AccountRepository
@@ -143,12 +141,7 @@ export class AccountRepository
     return wallet;
   }
 
-  async summary(userId: number, period: AccountSummaryPeriod = 'THIS_WEEK') {
-    const momentTimeUnit = period.toLowerCase().replace('this_', '') as any;
-
-    const startDate = moment().utc().startOf(momentTimeUnit).toDate();
-    const endDate = moment().utc().toDate();
-
+  async summary(userId: number, startDate: string, endDate: string) {
     const transactions = await this.prismaService.transaction.groupBy({
       by: ['type'],
       _sum: {

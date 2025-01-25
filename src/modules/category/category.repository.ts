@@ -139,13 +139,9 @@ export class CategoryRepository
   async insights(
     userId: number,
     type: 'CREDIT' | 'DEBIT',
-    period: AccountSummaryPeriod = 'THIS_WEEK',
+    startDate: string,
+    endDate: string,
   ) {
-    const momentTimeUnit = period.toLowerCase().replace('this_', '') as any;
-
-    const startDate = moment().utc().startOf(momentTimeUnit).toDate();
-    const endDate = moment().utc().toDate();
-
     const result = await this.prismaService.transaction.groupBy({
       by: ['categoryId'],
       where: {

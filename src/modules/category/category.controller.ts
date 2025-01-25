@@ -30,6 +30,7 @@ import { UploadIconResponseDto } from './dtos/upload-icon-response.dto';
 import { CacheInterceptor, CacheKey } from '@nestjs/cache-manager';
 import { CATEGORY_CACHE_KEY } from './category.constants';
 import { CategoryInsightsResponseDto } from './dtos/category-insights-response.dto';
+import { FilterCategoryInsightsDto } from './dtos/filter-category-insights.dto';
 
 @Controller('categories')
 @UseGuards(AuthGuard, RoleGuard)
@@ -40,8 +41,16 @@ export class CategoryController {
   @Roles(Role.USER)
   @HttpCode(HttpStatus.OK)
   @Serialize(CategoryInsightsResponseDto)
-  insights(@CurrentUser() user: any, @Query() query: any) {
-    return this.categoryService.insights(user.id, query.type, query.period);
+  insights(
+    @CurrentUser() user: any,
+    @Query() query: FilterCategoryInsightsDto,
+  ) {
+    return this.categoryService.insights(
+      user.id,
+      query.type,
+      query.startDate,
+      query.endDate,
+    );
   }
 
   @Post()

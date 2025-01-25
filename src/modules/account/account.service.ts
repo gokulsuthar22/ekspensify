@@ -76,8 +76,8 @@ export class AccountService {
     return accounts;
   }
 
-  async summary(userId: number, period: AccountSummaryPeriod) {
-    const summary = await this.accountRepo.summary(userId, period);
+  async summary(userId: number, startDate: string, endDate: string) {
+    const summary = await this.accountRepo.summary(userId, startDate, endDate);
     return summary;
   }
 }

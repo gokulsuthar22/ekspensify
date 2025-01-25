@@ -35,7 +35,7 @@ export class AccountController {
   @HttpCode(HttpStatus.OK)
   @Serialize(AccountSummeryResponseDto)
   summary(@CurrentUser() user: any, @Query() query: FilterAccountSummeryDto) {
-    return this.accountService.summary(user.id, query.period);
+    return this.accountService.summary(user.id, query.startDate, query.endDate);
   }
 
   @Post()

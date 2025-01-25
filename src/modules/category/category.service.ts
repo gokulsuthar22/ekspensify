@@ -14,7 +14,6 @@ import { CustomCategoryIconRepository } from '@/modules/custom-category-icons/cu
 import { UtilService } from '@/common/services/util.service';
 
 import * as sharp from 'sharp';
-import { AccountSummaryPeriod } from '../account/account.interface';
 
 @Injectable()
 export class CategoryService {
@@ -74,8 +73,18 @@ export class CategoryService {
     return icFillColor;
   }
 
-  async insights(userId: number, type: any, period: AccountSummaryPeriod) {
-    const insights = await this.categoryRepo.insights(userId, type, period);
+  async insights(
+    userId: number,
+    type: any,
+    startDate: string,
+    endDate: string,
+  ) {
+    const insights = await this.categoryRepo.insights(
+      userId,
+      type,
+      startDate,
+      endDate,
+    );
     return insights;
   }
 

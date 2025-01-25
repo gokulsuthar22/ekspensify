@@ -1,16 +1,26 @@
-import { AccountSummaryPeriod } from '@/modules/account/account.interface';
 import { TxType } from '@prisma/client';
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 import { IsIn, IsOptional, IsString } from 'class-validator';
+import * as moment from 'moment';
 
 export class FilterCategoryInsightsDto {
-  @Expose()
-  @IsIn(['THIS_WEEK', 'THIS_MONTH', 'THIS_YEAR'], {
-    message: "`period` must be 'THIS_WEEK', 'THIS_MONTH' or 'THIS_YEAR'",
+  @Expose({ name: 'start_date' })
+  @Transform(({ obj }) => {
+    return obj?.start_date
+      ? moment(obj.start_date).utc().toDate()
+      : moment().utc().startOf('week').toDate();
   })
-  @IsString({ message: '`period` must be a string' })
   @IsOptional()
-  period?: AccountSummaryPeriod;
+  startDate: string;
+
+  @Expose({ name: 'end_date' })
+  @Transform(({ obj }) => {
+    return obj?.end_date
+      ? moment(obj.end_date).utc().toDate()
+      : moment().utc().endOf('week').toDate();
+  })
+  @IsOptional()
+  endDate?: string;
 
   @Expose()
   @IsIn(['CREDIT', 'DEBIT'], {
