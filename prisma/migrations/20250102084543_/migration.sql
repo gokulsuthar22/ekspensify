@@ -202,6 +202,9 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 -- CreateIndex
 CREATE UNIQUE INDEX "otps_email_key" ON "otps"("email");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "accounts_slug_key" ON "accounts"("slug");
+
 -- AddForeignKey
 ALTER TABLE "media" ADD CONSTRAINT "media_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 

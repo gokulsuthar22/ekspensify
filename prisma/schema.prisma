@@ -138,7 +138,7 @@ model Account {
   userId    Int       @map("user_id")
   name      String    @map("name")
   type      AcType    @map("type")
-  slug      String    @map("slug")
+  slug      String    @unique @map("slug")
   icon      String?   @map("icon")
   balance   Decimal   @map("balance")
   createdAt DateTime  @default(now()) @map("created_at")

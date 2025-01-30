@@ -159,7 +159,7 @@ export class TransactionRepository {
         select: this.select,
       });
       if (transaction) {
-        await this.accountService.credit(
+        await this.accountService.debit(
           transaction.accountId,
           +transaction.amount,
         );
@@ -205,7 +205,7 @@ export class TransactionRepository {
         select: this.select,
       });
       if (transaction) {
-        await this.accountService.credit(
+        await this.accountService.debit(
           transaction.accountId,
           +transaction.amount,
           ctx,
