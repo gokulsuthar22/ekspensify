@@ -60,10 +60,7 @@ moment.updateLocale('en', {
       useFactory: async (configService: ConfigService) => {
         return {
           store: await redisStore({
-            socket: {
-              host: configService.get('redis').host,
-              port: configService.get('redis').port,
-            },
+            url: configService.get('redis').url,
           }),
         };
       },
