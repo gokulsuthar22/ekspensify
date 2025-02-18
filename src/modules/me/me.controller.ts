@@ -16,26 +16,17 @@ import { Serialize } from '@/core/interceptors/serialize.interceptor';
 import { UpdateMeUserDto } from '@/shared/user/dtos/update-me-user.dto';
 import { UserDto } from '@/shared/user/dtos/user.dto';
 import { UserService } from '@/shared/user/user.service';
-import { NotificationService } from '@/shared/notification/notification.service';
 
 @Controller('users/me')
 @UseGuards(AuthGuard, RoleGuard)
 export class MeController {
-  constructor(
-    private userService: UserService,
-    private notification: NotificationService,
-  ) {}
+  constructor(private userService: UserService) {}
 
   @Get()
   @Roles(Role.USER, Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Serialize(UserDto)
-  async getMe(@CurrentUser() user: any) {
-    await this.notification.notifyUser({
-      content: 'Het',
-      userId: [user.id],
-      heading: 'Nothing',
-    });
+  getMe(@CurrentUser() user: any) {
     return this.userService.findById(user.id);
   }
 
