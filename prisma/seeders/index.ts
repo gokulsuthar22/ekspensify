@@ -12,15 +12,22 @@ async function main() {
       prisma.user.create({
         data: {
           ...user,
-          media: user.role === 'ADMIN' ? undefined : undefined,
+          media:
+            user.role === 'ADMIN'
+              ? {
+                  createMany: {
+                    data: media,
+                  },
+                }
+              : undefined,
         } as any,
       }),
     ),
   );
 
   await Promise.all([
-    // prisma.category.createMany({ data: categories as any }),
-    // prisma.customCategoryIcon.createMany({ data: customCategoryIcons as any }),
+    prisma.category.createMany({ data: categories as any }),
+    prisma.customCategoryIcon.createMany({ data: customCategoryIcons as any }),
   ]);
   console.log('Data seeded');
 }
