@@ -33,7 +33,8 @@ export interface FilterBudgetWhere {
 
 export interface BudgetWhere {
   id: number;
-  userId: number;
+  userId?: number;
+  status?: BudgetStatus;
 }
 
 export interface CreateBudgetCategoryData {

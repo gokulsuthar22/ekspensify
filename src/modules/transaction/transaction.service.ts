@@ -86,38 +86,42 @@ export class TransactionService {
       const totalReportTx = await this.budgetTransactionRepo.calTotalReportTx(
         budgetTx.reportId,
       );
-      const [__, { limit, spent: newSpent }] = await Promise.all([
-        this.budgetReportRepo.update(budget.reportId, {
+
+      const updatedBudget = await this.budgetRepo.findOneAndUpdate(
+        { id: budget.reportId, status: 'RUNNING' },
+        { spent: totalPeriodAmt },
+      );
+
+      if (updatedBudget) {
+        await this.budgetReportRepo.update(budget.reportId, {
           amount: totalPeriodAmt,
           totalTransactions: totalReportTx,
-        }),
-        this.budgetRepo.updateById(budget.id, {
-          spent: totalPeriodAmt,
-        }),
-      ]);
-
-      const prevSpent = budget.spent;
-      const percentBefore = (+prevSpent / +limit) * 100;
-      const percentAfter = (+newSpent / +limit) * 100;
-
-      // Define thresholds in descending order
-      const thresholds = [100, 90, 50];
-      let notifyThreshold: number | null = null;
-
-      for (const threshold of thresholds) {
-        if (percentBefore < threshold && percentAfter >= threshold) {
-          notifyThreshold = threshold;
-          break; // Stop at the highest threshold crossed
-        }
-      }
-
-      // If a threshold was crossed, send notification
-      if (notifyThreshold !== null) {
-        this.notificationService.notifyUser({
-          content: `You have reached ${notifyThreshold}% of your ${budget.period.toLowerCase()} budget's limit`,
-          userId: [data.userId],
-          heading: 'Budget Alert',
         });
+
+        const prevSpent = budget.spent;
+        const percentBefore = (+prevSpent / +updatedBudget.limit) * 100;
+        const percentAfter =
+          (+updatedBudget.spent / +updatedBudget.limit) * 100;
+
+        // Define thresholds in descending order
+        const thresholds = [100, 90, 50];
+        let notifyThreshold: number | null = null;
+
+        for (const threshold of thresholds) {
+          if (percentBefore < threshold && percentAfter >= threshold) {
+            notifyThreshold = threshold;
+            break; // Stop at the highest threshold crossed
+          }
+        }
+
+        // If a threshold was crossed, send notification
+        if (notifyThreshold !== null) {
+          this.notificationService.notifyUser({
+            content: `You have reached ${notifyThreshold}% of your ${budget.period.toLowerCase()} budget's limit`,
+            userId: [data.userId],
+            heading: 'Budget Alert',
+          });
+        }
       }
     }
   }
