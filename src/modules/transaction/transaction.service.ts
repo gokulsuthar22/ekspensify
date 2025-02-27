@@ -22,8 +22,6 @@ import * as hbs from 'handlebars';
 import * as moment from 'moment';
 import * as json2csv from 'json2csv';
 import puppeteer from 'puppeteer';
-import { CloudinaryService } from '@/helper/media/services/cloudinary.service';
-import { NotificationService } from '@/shared/notification/notification.service';
 
 @Injectable()
 export class TransactionService {
@@ -33,10 +31,8 @@ export class TransactionService {
     private budgetReportRepo: BudgetReportRepository,
     private budgetTransactionRepo: BudgetTransactionRepository,
     private mediaRepo: MediaRepository,
-    // private cloudinaryService: CloudinaryService,
     private awsS3Service: AwsS3Service,
     private mailService: MailService,
-    private notificationService: NotificationService,
   ) {}
 
   private async validateAttachment(id: number) {
@@ -70,7 +66,7 @@ export class TransactionService {
 
     if (!budgets.length) return;
 
-    for (const budget of budgets) {
+    for (let budget of budgets) {
       const budgetTx = await this.budgetTransactionRepo.create({
         budgetId: budget.id,
         reportId: budget.reportId,
@@ -87,42 +83,15 @@ export class TransactionService {
         budgetTx.reportId,
       );
 
-      const updatedBudget = await this.budgetRepo.findOneAndUpdate(
-        { id: budget.reportId, status: 'RUNNING' },
-        { spent: totalPeriodAmt },
-      );
-
-      if (updatedBudget) {
-        await this.budgetReportRepo.update(budget.reportId, {
+      await Promise.all([
+        this.budgetReportRepo.update(budget.reportId, {
           amount: totalPeriodAmt,
           totalTransactions: totalReportTx,
-        });
-
-        const prevSpent = budget.spent;
-        const percentBefore = (+prevSpent / +updatedBudget.limit) * 100;
-        const percentAfter =
-          (+updatedBudget.spent / +updatedBudget.limit) * 100;
-
-        // Define thresholds in descending order
-        const thresholds = [100, 90, 50];
-        let notifyThreshold: number | null = null;
-
-        for (const threshold of thresholds) {
-          if (percentBefore < threshold && percentAfter >= threshold) {
-            notifyThreshold = threshold;
-            break; // Stop at the highest threshold crossed
-          }
-        }
-
-        // If a threshold was crossed, send notification
-        if (notifyThreshold !== null) {
-          this.notificationService.notifyUser({
-            content: `You have reached ${notifyThreshold}% of your ${budget.period.toLowerCase()} budget's limit`,
-            userId: [data.userId],
-            heading: 'Budget Alert',
-          });
-        }
-      }
+        }),
+        this.budgetRepo.updateById(budget.id, {
+          spent: totalPeriodAmt,
+        }),
+      ]);
     }
   }
 
@@ -133,7 +102,7 @@ export class TransactionService {
 
     if (!budgetTxns.length) return;
 
-    for (const budgetTxn of budgetTxns) {
+    for (let budgetTxn of budgetTxns) {
       const totalPeriodAmt =
         await this.budgetTransactionRepo.calTotalPeriodAmount(
           budgetTxn.reportId,
@@ -227,20 +196,6 @@ export class TransactionService {
   }
 
   async uploadAttachment(data: UploadAttachmentData) {
-    //New Cloudinary Logic
-    // const path = await this.cloudinaryService.upload(
-    //   data.image.buffer,
-    //   data.image.mimetype,
-    // );
-    // const attachment = this.mediaRepo.create({
-    //   name: data.image.originalname,
-    //   path: path,
-    //   size: data.image.size,
-    //   mime: data.image.mimetype,
-    //   userId: data.userId,
-    // });
-    // return attachment;
-    // Previous AWS S3 Logic
     const name = this.awsS3Service.getObjectKey(
       data.image.originalname,
       'png',
@@ -304,7 +259,6 @@ export class TransactionService {
     const html = template({ transactions });
 
     const browser = await puppeteer.launch({
-      headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 

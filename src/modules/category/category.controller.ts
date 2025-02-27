@@ -68,8 +68,8 @@ export class CategoryController {
   @Roles(Role.ADMIN, Role.USER)
   @HttpCode(HttpStatus.OK)
   @Serialize(CategoryDto)
-  @CacheKey(CATEGORY_CACHE_KEY)
-  @UseInterceptors(CacheInterceptor)
+  // @CacheKey(CATEGORY_CACHE_KEY)
+  // @UseInterceptors(CacheInterceptor)
   findMany(@CurrentUser() user: any) {
     return this.categoryService.findMany({
       OR:

@@ -159,6 +159,7 @@ export class BudgetRepository {
   ) {
     const budgets = await this.Budget.findMany({
       where: {
+        status: 'RUNNING',
         userId: userId,
         startDate: { lte: date },
         OR: [
