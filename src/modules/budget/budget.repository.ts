@@ -124,17 +124,19 @@ export class BudgetRepository {
   async findMany(where?: FilterBudgetWhere) {
     const result = await this.Budget.groupBy({
       by: ['type', 'status'], // Group by 'type' and 'status'
-      where: { userId: where.userId },
-      _count: {
-        id: true, // Count based on the 'id'
-      },
+      where: { userId: where?.userId },
+      _count: { id: true }, // Count based on the 'id'
     });
 
-    // Extract counts from the grouped result
-    const counts = {
-      closed: result.find((item) => item.status === 'CLOSED')?._count.id || 0,
-      running: result.find((item) => item.status === 'RUNNING')?._count.id || 0,
-    };
+    // Sum counts for each status
+    const counts = result.reduce(
+      (acc, item) => {
+        if (item.status === 'CLOSED') acc.closed += item._count.id;
+        if (item.status === 'RUNNING') acc.running += item._count.id;
+        return acc;
+      },
+      { closed: 0, running: 0 },
+    );
 
     const budgets = await this.paginationService.paginate<
       Budget,
@@ -148,6 +150,7 @@ export class BudgetRepository {
       },
       counts,
     );
+
     return budgets;
   }
 
