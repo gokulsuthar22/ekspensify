@@ -16,6 +16,7 @@ import { BudgetRepository } from '../budget/budget.repository';
 import { BudgetTransactionRepository } from '../budget/repositories/budget-transaction.repository';
 import { BudgetReportRepository } from '../budget/repositories/budget-report.repository';
 import { MailService } from '@/helper/mail/mail.service';
+import { NotificationService } from '@/shared/notification/notification.service';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as hbs from 'handlebars';
@@ -33,6 +34,7 @@ export class TransactionService {
     private mediaRepo: MediaRepository,
     private awsS3Service: AwsS3Service,
     private mailService: MailService,
+    private notificationService: NotificationService,
   ) {}
 
   private async validateAttachment(id: number) {
@@ -83,7 +85,7 @@ export class TransactionService {
         budgetTx.reportId,
       );
 
-      await Promise.all([
+      const [__, updatedBudget] = await Promise.all([
         this.budgetReportRepo.update(budget.reportId, {
           amount: totalPeriodAmt,
           totalTransactions: totalReportTx,
@@ -92,6 +94,31 @@ export class TransactionService {
           spent: totalPeriodAmt,
         }),
       ]);
+
+      const prevSpent = budget.spent;
+      const percentBefore = (+prevSpent / +updatedBudget.limit) * 100;
+      const percentAfter = (+updatedBudget.spent / +updatedBudget.limit) * 100;
+
+      // Define thresholds in descending order
+      const thresholds = [100, 90, 50];
+      let notifyThreshold: number | null = null;
+
+      for (const threshold of thresholds) {
+        if (percentBefore < threshold && percentAfter >= threshold) {
+          notifyThreshold = threshold;
+          break; // Stop at the highest threshold crossed
+        }
+      }
+
+      // If a threshold was crossed, send notification
+      if (notifyThreshold !== null) {
+        this.notificationService.notifyUser({
+          content: `You have reached ${notifyThreshold}% of your ${budget.period.toLowerCase()} budget's limit`,
+          userId: [data.userId],
+          heading: 'Budget Alert',
+          data: { activity: 'BUDGET', id: budget.id },
+        });
+      }
     }
   }
 

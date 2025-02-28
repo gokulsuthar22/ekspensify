@@ -21,11 +21,14 @@ export class NotificationService {
     const oneSignalPayload = new NotificationByDeviceBuilder()
       .setIncludeExternalUserIds(data.userId.map((i) => i.toString()))
       .notification()
+      .setAppearance({
+        small_icon: 'ic_stat_notification',
+      })
       .setContents({ en: data?.content })
       .setHeadings({ en: data.heading })
       .setAttachments({
         big_picture: data?.imageUrl,
-        data: { activity: 'BUDGET', id: 7 },
+        data: data.data,
       })
       .build();
     await this.client.createNotification(oneSignalPayload);
